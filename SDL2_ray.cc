@@ -41,8 +41,14 @@ int main(int ArgC, char **Args)
 
     v3f CameraP = v3f{0, -10, 1};
     v3f LookAt  = v3f{0, 0, 0,};
-    v3f CameraZ = CameraP - LookAt;
-    v3f Up = v3f{0,1,0};
+    v3f CameraZ = Normalize(CameraP - LookAt);
+    v3f Up = v3f{0, 0, 1};
+    v3f CameraX = Normalize(Cross(Up, CameraZ)); //right hand rule
+    v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
+
+    f32 FilmDist = 1.0;
+
+
 
 
 
@@ -52,6 +58,7 @@ int main(int ArgC, char **Args)
         u32 *Out = Image.Pixels;
         for(u32 Y = 0; Y < Image.Height; ++Y)
         {
+            f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
             for(u32 X = 0; X < Image.Width; ++X)
             {
                 *Out++ = ARGBPack(255, 255, 0, 0);
