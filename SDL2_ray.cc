@@ -47,6 +47,18 @@ int main(int ArgC, char **Args)
     v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
 
     f32 FilmDist = 1.0;
+    f32 FilmW = 1.0;
+    f32 FilmH = 1.0;
+    if(Image.Width > Image.Height)
+    {
+        FilmH *= (f32) Image.Height / Image.Width;
+    }
+    if(Image.Width < Image.Height)
+    {
+        FilmW *= (f32) Image.Width / Image.Height;
+    }
+    f32 HalfFilmW = 0.5 * FilmW;
+    f32 HalfFilmH = 0.5 * FilmH;
 
 
 
@@ -54,13 +66,18 @@ int main(int ArgC, char **Args)
 
     while(is_running == true)
     {
-
         u32 *Out = Image.Pixels;
         for(u32 Y = 0; Y < Image.Height; ++Y)
         {
             f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
             for(u32 X = 0; X < Image.Width; ++X)
             {
+                f32 FilmX = -1.0 + 2.0 * X / (f32) Image.Width;
+                v3f RayOrigin = CameraP;
+                v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY * FilmY * HalfFilmH + CameraX * FilmX * HalfFilmW);
+                v3f color = Raycast(World, Image, RayOrigin, RayDirection);
+
+
                 *Out++ = ARGBPack(255, 255, 0, 0);
             }
         }
