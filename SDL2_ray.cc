@@ -7,14 +7,11 @@
 
 v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
-    f32 Tolerance = 0.001;
+    f32 Tolerance = 0.0001;
     f32 HitDistance = F32_MAX;
     u32 HitMatIndex = 0;
-    v3f NextOrigin = {};
-    v3f NextNormal = {};
 
     
-
     for(u32 SphereIdx = 0; SphereIdx < World.SphereCount; ++SphereIdx)
     {
         sphere Sphere = World.Spheres[SphereIdx];
@@ -79,17 +76,17 @@ int main(int ArgC, char **Args)
     world World = {};
     material Materials[] = 
     {
-        {{0.3, 0.4, 0.5}, {0.0, 0.0, 0.0}, },
-        {{0.0, 0.0, 0.0}, {0.8, 0.6, 0.7}, },
-        {{0.0, 0.0, 0.0}, {0.0, 0.9, 0.3}, },  
-    };
-    sphere Spheres[] = 
-    {
-        {{0,0,0}, 1, 1},
+        {{0.3, 0.4, 0.5}, {0.0, 0.0, 0.8} },
+        {{0.0, 0.0, 0.0}, {0.8, 0.6, 0.7} },
+        {{0.0, 0.0, 0.0}, {0.0, 0.9, 0.3} },  
     };
     plane Planes[] = 
     {
-        {{0,0,1}, 1, 2},
+        {{0,0,1}, 0, 1},
+    };
+    sphere Spheres[] = 
+    {
+        {{0,0,0}, 1, 2},
     };
     World.MaterialCount = ArrayCount(Materials);
     World.SphereCount = ArrayCount(Spheres);
@@ -101,8 +98,7 @@ int main(int ArgC, char **Args)
     v3f CameraP = v3f{0, -10, 1};
     v3f LookAt  = v3f{0, 0, 0,};
     v3f CameraZ = Normalize(CameraP - LookAt);
-    v3f Up = v3f{0, 0, 1};
-    v3f CameraX = Normalize(Cross(Up, CameraZ)); //right hand rule
+    v3f CameraX = Normalize(Cross(v3f{0,0,1}, CameraZ)); //right hand rule
     v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
 
     f32 FilmDist = 1.0;
