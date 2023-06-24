@@ -5,6 +5,13 @@
 #include "ray.cc"
 
 
+v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
+{
+    v3f Color = v3f{0.8,0.5,0.3};
+    return(Color);
+}
+
+
 
 int main(int ArgC, char **Args)
 {
@@ -78,7 +85,7 @@ int main(int ArgC, char **Args)
                 v3f color = Raycast(World, Image, RayOrigin, RayDirection);
 
 
-                *Out++ = ARGBPack(255, 255, 0, 0);
+                *Out++ = ARGBPack(color);
             }
         }
 
