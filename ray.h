@@ -21,14 +21,14 @@ typedef struct
 {
     v3f P;
     f32 r;
-    u32 MatIdx;
+    u32 MatIndex;
 } sphere;
 
 typedef struct
 {
     v3f N;
     f32 d;
-    u32 MatIdx;
+    u32 MatIndex;
 } plane;
 
 typedef struct
