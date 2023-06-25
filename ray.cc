@@ -21,7 +21,6 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         {
             sphere Sphere = World.Spheres[SphereIdx];
             
-            // determine if we hit the sphere or not
             f32 a = Inner(RayDirection, RayDirection);
             v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
             f32 b = 2.0 * Inner(RayDirection, OffsetSphereOrigin);
@@ -67,7 +66,9 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         if(HitMatIndex != 0)
         {
             RayOrigin = NextOrigin;
-            RayDirection = RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal);
+            v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
+            v3f RandomBounce = Normalize(NextNormal + Normalize(v3f{RandomBilateral(),RandomBilateral(),RandomBilateral()}));
+            RayDirection = PureBounce * 0.5 + RandomBounce * 0.5;
             Attenuation = Hadamard(Attenuation, Material.RefColor);
         }
         else

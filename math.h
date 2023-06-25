@@ -96,4 +96,20 @@ v3f Cross(v3f a, v3f b) {
     return(r);
 };
 
+#include <random>
+
+
+f32 RandomUnilateral()
+{
+    f32 Result = (f32) rand() / RAND_MAX;
+    return(Result);
+}
+
+f32 RandomBilateral()
+{
+    f32 Result = -1.0 + 2.0*RandomUnilateral();
+    return(Result);
+}
+
+
 #endif
