@@ -1,7 +1,6 @@
-#include "math.h"
-
 #ifndef RAY_H
 #define RAY_H
+#include "math.h"
 
 typedef struct
 {

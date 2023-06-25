@@ -2,6 +2,7 @@
 #define MATH_H
 
 #include <stdbool.h>
+#include <math.h>
 
 
 #define F32_MAX 3.402823466e+38F

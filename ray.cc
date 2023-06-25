@@ -1,59 +1,81 @@
 #include "ray.h"
 #include "math.h"
 
-
-
 v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
     f32 Tolerance = 0.0001;
-    f32 HitDistance = F32_MAX;
-    u32 HitMatIndex = 0;
 
-    for(u32 SphereIdx = 0; SphereIdx < World.SphereCount; ++SphereIdx)
+    v3f Color = {0,0,0};
+    v3f Attenuation = {1,1,1};
+
+    v3f NextOrigin = {};
+    v3f NextNormal = {};
+
+    u32 MaxBounces = 8;
+    for(u32 BounceCount = 0; BounceCount < MaxBounces; ++BounceCount)
     {
-        sphere Sphere = World.Spheres[SphereIdx];
+        f32 HitDistance = F32_MAX;
+        u32 HitMatIndex = 0;
+
+        for(u32 SphereIdx = 0; SphereIdx < World.SphereCount; ++SphereIdx)
+        {
+            sphere Sphere = World.Spheres[SphereIdx];
+            
+            // determine if we hit the sphere or not
+            f32 a = Inner(RayDirection, RayDirection);
+            v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
+            f32 b = 2.0 * Inner(RayDirection, OffsetSphereOrigin);
+            f32 c = Inner(OffsetSphereOrigin, OffsetSphereOrigin) - Sphere.r * Sphere.r;
+            f32 RootTerm = sqrtf(b * b - 4.0f * a * c);
+            if (RootTerm > Tolerance)
+            {
+                f32 t =  (-b + RootTerm) / (2.0 * a);
+                f32 tn = (-b - RootTerm) / (2.0 * a);
+                if (tn > Tolerance)
+                {
+                    t = tn;
+                }
+                if (t < HitDistance && t > Tolerance)
+                {
+                    HitDistance = t;
+                    HitMatIndex = Sphere.MatIndex;
+                    NextOrigin = t*RayDirection + RayOrigin;
+                    NextNormal = Normalize(NextOrigin - Sphere.P);
+                }
+            }
+        }
         
-        // determine if we hit the sphere or not
-        f32 a = Inner(RayDirection, RayDirection);
-        v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
-        f32 b = 2.0 * Inner(RayDirection, OffsetSphereOrigin);
-        f32 c = Inner(OffsetSphereOrigin, OffsetSphereOrigin) - Sphere.r * Sphere.r;
-        f32 RootTerm = sqrtf(b * b - 4.0f * a * c);
-        if (RootTerm > Tolerance)
+        for(u32 PlaneIdx = 0; PlaneIdx < World.PlaneCount; ++PlaneIdx)
         {
-            f32 t =  (-b + RootTerm) / (2.0 * a);
-            f32 tn = (-b - RootTerm) / (2.0 * a);
-            if (tn > Tolerance)
+            plane Plane = World.Planes[PlaneIdx];
+            f32 Denom = Inner(RayDirection, Plane.N);
+            if ((Denom < -Tolerance) || (Denom > Tolerance))
             {
-                t = tn;
-            }
-            if (t < HitDistance && t > Tolerance)
-            {
-                HitDistance = t;
-                HitMatIndex = Sphere.MatIndex;
+                f32 t = -(Inner(RayOrigin, Plane.N) + Plane.d) / Denom;
+                if (t < HitDistance && t > Tolerance)
+                {
+                    HitDistance = t;
+                    HitMatIndex = Plane.MatIndex;
+                    NextOrigin = t*RayDirection + RayOrigin;
+                    NextNormal = Normalize(Plane.N);
+                }
             }
         }
-    }
-    
-    for(u32 PlaneIdx = 0; PlaneIdx < World.PlaneCount; ++PlaneIdx)
-    {
-        plane Plane = World.Planes[PlaneIdx];
-        f32 Denom = Inner(RayDirection, Plane.N);
-        if ((Denom < -Tolerance) || (Denom > Tolerance))
+
+        material Material = World.Materials[HitMatIndex];
+        Color += Hadamard(Attenuation, Material.EmitColor);
+        if(HitMatIndex != 0)
         {
-            f32 t = -(Inner(RayOrigin, Plane.N) + Plane.d) / Denom;
-            if (t < HitDistance && t > Tolerance)
-            {
-                HitDistance = t;
-                HitMatIndex = Plane.MatIndex;
-            }
+            RayOrigin = NextOrigin;
+            RayDirection = RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal);
+            Attenuation = Hadamard(Attenuation, Material.RefColor);
         }
+        else
+        {
+            break;
+        }
+
     }
-
-    material Material = World.Materials[HitMatIndex];
-    v3f Color = Material.RefColor;
-
-    // v3f Color = v3f{0.8,0.5,0.3};
     return(Color);
 }
 
