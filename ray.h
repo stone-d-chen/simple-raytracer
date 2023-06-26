@@ -41,6 +41,8 @@ typedef struct
     u32 PlaneCount;
     plane *Planes;
 
+    random_series *State;
+
 } world;
 
 

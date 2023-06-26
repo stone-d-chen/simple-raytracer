@@ -98,10 +98,57 @@ v3f Cross(v3f a, v3f b) {
 
 #include <random>
 
+typedef struct
+{
+    u32 states[5];
+    u32 counter;
+} random_series;
 
+u32 XorWow(random_series *state)
+{
+    /* https://en.wikipedia.org/wiki/Xorshift#xorwow */
+    u32 t = state->states[4];
+
+    u32 s = state->states[0];
+    state->states[4] = state->states[3];
+    state->states[3] = state->states[2];
+    state->states[2] = state->states[1];
+    state->states[1] = s;
+
+    t ^= t >> 2;
+    t ^= t << 1;
+    t ^= s ^ (s << 4);
+    state->states[0] = t;
+    state->counter += 362437;
+    t += state->counter;
+    return(t);
+}
+u32 XorShiftU32(random_series *state)
+{
+    // https://en.wikipedia.org/wiki/Xorshift#xorwow
+    u32 x = state->states[0];
+    x ^= (x << 13);
+    x ^= (x >> 17);
+    x ^= (x << 5 );
+    state->states[0] = x;
+    return(x);
+}
+
+f32 RandomUnilateral(random_series *state)
+{
+    f32 Result = (f32) XorWow(state);
+    Result/= (f32) UINT32_MAX;
+    return(Result);
+}
+
+f32 RandomBilateral(random_series *state)
+{
+    f32 Result = -1.0 + 2.0*RandomUnilateral(state);
+    return(Result);
+}
 f32 RandomUnilateral()
 {
-    f32 Result = (f32) rand() / RAND_MAX;
+    f32 Result = (f32) rand() / (f32) RAND_MAX;
     return(Result);
 }
 

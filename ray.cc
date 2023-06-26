@@ -67,7 +67,9 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         {
             RayOrigin = NextOrigin;
             v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
-            v3f RandomBounce = Normalize(NextNormal + Normalize(v3f{RandomBilateral(),RandomBilateral(),RandomBilateral()}));
+            v3f RandomBounce = Normalize(NextNormal + Normalize(v3f{RandomBilateral(World.State),
+                                                                    RandomBilateral(World.State),
+                                                                    RandomBilateral(World.State)}));
             RayDirection = PureBounce * 0.5 + RandomBounce * 0.5;
             Attenuation = Hadamard(Attenuation, Material.RefColor);
         }
