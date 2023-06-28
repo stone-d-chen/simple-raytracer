@@ -46,7 +46,6 @@ int main(int ArgC, char **Args)
                 u32 TileOnePastMaxX = TileMinX + TileWidth; if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
 
                 work_order *Order = Queue.Orders + Queue.WorkOrderCount++;
-
                 Order->World = World;
                 Order->Image = Image;
                 Order->TileMinX = TileMinX;
@@ -67,14 +66,35 @@ int main(int ArgC, char **Args)
       
         void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
         s32 Pitch = Image.Width * sizeof(u32);
-
         SDL_LockTexture(texture, NULL, &TextureMemory, &Pitch);
         memcpy(TextureMemory, (void*)Image.Pixels, Image.Width*Image.Height*sizeof(u32));
-
         SDL_UnlockTexture(texture);
+
         SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
+
+
+        SDL_Event event;
+        SDL_PollEvent(&event);
+        switch(event.type)
+        {
+            case SDL_QUIT:
+            {
+                is_running = false;
+            } break;
+
+            case SDL_KEYDOWN:
+            {
+                switch(event.key.keysym.sym)
+                {
+                    case SDLK_ESCAPE:
+                    {
+                        is_running = false;
+                    } break;
+                }
+            } break;
+        }
     }
     return(0);
 
