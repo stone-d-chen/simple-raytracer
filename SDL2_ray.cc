@@ -16,7 +16,10 @@ int main(int ArgC, char **Args)
     SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, Image.Width, Image.Height);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
+
 #include "WorldInit.h" //just to get it out of the way
+
+    u32 loopcount = 0;
 
     while(is_running == true)
     {
@@ -38,10 +41,17 @@ int main(int ArgC, char **Args)
 
 
 
+        void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
+        s32 Pitch = Image.Width * sizeof(u32);
 
-        SDL_UpdateTexture(texture, NULL, Image.Pixels, (s32) Image.Width * sizeof(u32));
+        SDL_LockTexture(texture, NULL, &TextureMemory, &Pitch);
+        memcpy(TextureMemory, (void*)Image.Pixels, Image.Width*Image.Height*sizeof(u32));
+        SDL_UnlockTexture(texture);
         // TODO: Look into SDL_LockTexture
         SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
+        SDL_Delay(10);
+        loopcount++;
+        printf("loop %d \r", loopcount);
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
     }
