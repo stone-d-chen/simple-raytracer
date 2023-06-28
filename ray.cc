@@ -170,6 +170,12 @@ void RenderTile(world World, image_u32 Image,
 
 u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value);
 
+// u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
+// {
+//     u32 Result = *Addend;
+//     *Addend = *Addend + Value;
+//     return(Result);
+// }
 
 //this will be my threadproc
 void RenderTile(work_queue *Queue)
@@ -177,7 +183,8 @@ void RenderTile(work_queue *Queue)
     while(Queue->TilesRetired < Queue->WorkOrderCount)
     {
         u32 WorkOrderIndex = AddAndReturnPreviousValue(&Queue->NextWorkOrder, 1);
-    
+        if(WorkOrderIndex >= Queue->WorkOrderCount) return;
+        
         work_order *Order = Queue->Orders + WorkOrderIndex;
 
         RenderTile(Order->World,
@@ -200,10 +207,10 @@ void RenderTile(work_queue *Queue)
 #include <windows.h>
 u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
 {
-    u32 Result = *Addend;
-    *Addend = *Addend + Value;
+    u32 Result = InterlockedExchangeAdd(Addend, Value);
     return(Result);
 }
+
 
 DWORD WINAPI WorkerThread(void *Param)
 {
