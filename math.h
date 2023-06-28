@@ -4,9 +4,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-
 #define F32_MAX 3.402823466e+38F
-
 #define ArrayCount(x) (sizeof(x) / sizeof(x[0]))
 
 typedef unsigned int u32;
@@ -125,7 +123,7 @@ u32 XorWow(random_series *state)
 }
 u32 XorShiftU32(random_series *state)
 {
-    // https://en.wikipedia.org/wiki/Xorshift#xorwow
+    // https://en.wikipedia.org/wiki/Xorshift
     u32 x = state->states[0];
     x ^= (x << 13);
     x ^= (x >> 17);
@@ -136,8 +134,7 @@ u32 XorShiftU32(random_series *state)
 
 f32 RandomUnilateral(random_series *state)
 {
-    f32 Result = (f32) XorWow(state);
-    Result/= (f32) UINT32_MAX;
+    f32 Result = (f32) XorWow(state)/ UINT32_MAX;
     return(Result);
 }
 
