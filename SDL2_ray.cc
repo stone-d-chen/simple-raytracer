@@ -29,7 +29,6 @@ int main(int ArgC, char **Args)
     Queue.Orders = (work_order *)malloc(TotalTileCount * sizeof(work_order));
     
 
-
     while(is_running == true)
     {
 
@@ -37,7 +36,6 @@ int main(int ArgC, char **Args)
         Queue.TilesRetired = 0;
         Queue.WorkOrderCount = 0;
        
-
         for(u32 TileY = 0; TileY < TileCountY; ++TileY)
         {
             u32 TileMinY = TileY * TileHeight;
@@ -58,11 +56,15 @@ int main(int ArgC, char **Args)
             }
         }
 
+        AddAndReturnPreviousValue(&Queue.TilesRetired, 0);
+
+        u32 CoreCount = 4;
+        for(u32 CoreIdx = 1; CoreIdx < CoreCount; ++CoreIdx)
+        {
+            CreateWorkerThread((void*)&Queue);
+        }
         RenderTile(&Queue);
-
-              
-
-
+      
         void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
         s32 Pitch = Image.Width * sizeof(u32);
 

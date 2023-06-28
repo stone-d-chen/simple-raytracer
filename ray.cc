@@ -164,13 +164,14 @@ void RenderTile(world World, image_u32 Image,
     }
 }
 
-u32  AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
-{
-    u32 Result = *Addend;
-    *Addend = *Addend + Value;
-    return(Result);
-}
 
+
+
+
+u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value);
+
+
+//this will be my threadproc
 void RenderTile(work_queue *Queue)
 {
     while(Queue->TilesRetired < Queue->WorkOrderCount)
@@ -188,4 +189,31 @@ void RenderTile(work_queue *Queue)
 
         AddAndReturnPreviousValue(&Queue->TilesRetired, 1);
     }
+}
+
+
+/*
+    MAYBE NEW FILE HERE?
+
+*/
+
+#include <windows.h>
+u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
+{
+    u32 Result = *Addend;
+    *Addend = *Addend + Value;
+    return(Result);
+}
+
+DWORD WINAPI WorkerThread(void *Param)
+{
+    work_queue *Queue = (work_queue*) Param;
+    RenderTile(Queue);
+    return(0);
+}
+
+void CreateWorkerThread(void *Param)
+{
+    HANDLE Handle = CreateThread(NULL, 0, WorkerThread, Param, 0, NULL);
+    CloseHandle(Handle);
 }
