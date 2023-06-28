@@ -20,9 +20,7 @@ DWORD WINAPI ThreadProc( // pass a pointer to this function
 ```
 
 -   So I want to convert RenderTile into a thread routine
-
 -   I want the thread routine to continuously compute tiles until there's nothing left
-
 -   So it should take a work queue with the list of tiles to compute
 
 ## Updates/Notes

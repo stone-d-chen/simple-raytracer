@@ -46,5 +46,26 @@ typedef struct
 
 } world;
 
+typedef struct
+{
+    world World;     // pointers to arrays
+    image_u32 Image; // contains pointers to pixels
+
+    u32 TileMinX;
+    u32 TileMinY;
+    u32 TileOnePastMaxX;
+    u32 TileOnePastMaxY;
+
+} work_order;
+
+typedef struct
+{
+    u32 WorkOrderCount;
+    work_order *Orders;
+
+    volatile u32 NextWorkOrder;
+    volatile u32 TilesRetired;
+} work_queue;
+
 
 #endif

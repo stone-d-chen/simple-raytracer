@@ -121,14 +121,9 @@ void RenderTile(world World, image_u32 Image,
     f32 FilmDist = 1.0;
     f32 FilmW = 1.0;
     f32 FilmH = 1.0;
-    if (Image.Width > Image.Height)
-    {
-        FilmH *= (f32)Image.Height / Image.Width;
-    }
-    if (Image.Width < Image.Height)
-    {
-        FilmW *= (f32)Image.Width / Image.Height;
-    }
+    if (Image.Width > Image.Height) FilmH *= (f32)Image.Height / Image.Width;
+    if (Image.Width < Image.Height) FilmW *= (f32)Image.Width / Image.Height;
+
     f32 HalfFilmW = 0.5 * FilmW;
     f32 HalfFilmH = 0.5 * FilmH;
 
@@ -137,14 +132,11 @@ void RenderTile(world World, image_u32 Image,
     f32 HalfPixH = 0.5 * PixH;
     f32 HalfPixW = 0.5 * PixW;
 
-
     v3f CameraP = v3f{ 0, -10, 1 };
     v3f LookAt = v3f{ 0, 0, 0, };
     v3f CameraZ = Normalize(CameraP - LookAt);
     v3f CameraX = Normalize(Cross(v3f{ 0,0,1 }, CameraZ)); //right hand rule
     v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
-
-    
     v3f RayOrigin = CameraP;
 
     u32 *PixelOut = Image.Pixels;
@@ -169,5 +161,31 @@ void RenderTile(world World, image_u32 Image,
             *PixelOut++ = ARGBPack(color/RaysPerPixel);
 
         }
+    }
+}
+
+u32  AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
+{
+    u32 Result = *Addend;
+    *Addend = *Addend + Value;
+    return(Result);
+}
+
+void RenderTile(work_queue *Queue)
+{
+    while(Queue->TilesRetired < Queue->WorkOrderCount)
+    {
+        u32 WorkOrderIndex = AddAndReturnPreviousValue(&Queue->NextWorkOrder, 1);
+    
+        work_order *Order = Queue->Orders + WorkOrderIndex;
+
+        RenderTile(Order->World,
+                    Order->Image,
+                    Order->TileMinX,
+                    Order->TileMinY,
+                    Order->TileOnePastMaxX,
+                    Order->TileOnePastMaxY);
+
+        AddAndReturnPreviousValue(&Queue->TilesRetired, 1);
     }
 }

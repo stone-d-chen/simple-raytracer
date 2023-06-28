@@ -19,16 +19,24 @@ int main(int ArgC, char **Args)
 
 #include "WorldInit.h" //just to get it out of the way
 
+    u32 TileWidth = Image.Width / 8;
+    u32 TileHeight = TileWidth;
+    u32 TileCountX = (Image.Width + TileWidth - 1) / TileWidth;
+    u32 TileCountY = (Image.Height + TileHeight - 1) / TileHeight;
+    u32 TotalTileCount = TileCountX * TileCountY;
 
+    work_queue Queue = {};
+    Queue.Orders = (work_order *)malloc(TotalTileCount * sizeof(work_order));
+    
 
 
     while(is_running == true)
     {
 
-        u32 TileWidth = Image.Width / 8;
-        u32 TileHeight = TileWidth;
-        u32 TileCountX = (Image.Width + TileWidth - 1) / TileWidth;
-        u32 TileCountY = (Image.Height + TileHeight - 1) / TileHeight;
+        Queue.NextWorkOrder = 0;
+        Queue.TilesRetired = 0;
+        Queue.WorkOrderCount = 0;
+       
 
         for(u32 TileY = 0; TileY < TileCountY; ++TileY)
         {
@@ -38,11 +46,21 @@ int main(int ArgC, char **Args)
             {
                 u32 TileMinX = TileX * TileWidth;
                 u32 TileOnePastMaxX = TileMinX + TileWidth; if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
-                RenderTile(World, Image, TileMinX, TileMinY, TileOnePastMaxX, TileOnePastMaxY);
+
+                work_order *Order = Queue.Orders + Queue.WorkOrderCount++;
+
+                Order->World = World;
+                Order->Image = Image;
+                Order->TileMinX = TileMinX;
+                Order->TileMinY = TileMinY;
+                Order->TileOnePastMaxX = TileOnePastMaxX;
+                Order->TileOnePastMaxY = TileOnePastMaxY;
             }
         }
 
-      
+        RenderTile(&Queue);
+
+              
 
 
         void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
