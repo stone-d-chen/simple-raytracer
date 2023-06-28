@@ -20,34 +20,6 @@ int main(int ArgC, char **Args)
 #include "WorldInit.h" //just to get it out of the way
 
 
-    f32 FilmDist = 1.0;
-    f32 FilmW = 1.0;
-    f32 FilmH = 1.0;
-    if (Image.Width > Image.Height)
-    {
-        FilmH *= (f32)Image.Height / Image.Width;
-    }
-    if (Image.Width < Image.Height)
-    {
-        FilmW *= (f32)Image.Width / Image.Height;
-    }
-    f32 HalfFilmW = 0.5 * FilmW;
-    f32 HalfFilmH = 0.5 * FilmH;
-
-    f32 PixH = 2.0 / (f32)Image.Height;
-    f32 PixW = 2.0 / (f32)Image.Width;
-    f32 HalfPixH = 0.5 * PixH;
-    f32 HalfPixW = 0.5 * PixW;
-
-
-    v3f CameraP = v3f{ 0, -10, 1 };
-    v3f LookAt = v3f{ 0, 0, 0, };
-    v3f CameraZ = Normalize(CameraP - LookAt);
-    v3f CameraX = Normalize(Cross(v3f{ 0,0,1 }, CameraZ)); //right hand rule
-    v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
-
-    u32 RaysPerPixel = 4;
-
     v3f *ColorArray = (v3f *) malloc(Image.Height * Image.Width * sizeof(v3f));
     u32 TotalSamples = 0;
     while(is_running == true)
@@ -73,7 +45,9 @@ int main(int ArgC, char **Args)
             }
         }
 
-        printf("Total Samples: %d\r", TotalSamples);
+        // printf("Total Samples: %d\r", TotalSamples);
+        // printf("r: %f, g: %f, b: %f \r ",ColorArray->r, ColorArray->g, ColorArray->b);
+        // printf("r: %f, g: %f, b: %f \r ",ColorArray->r/TotalSamples, ColorArray->g/TotalSamples, ColorArray->b/TotalSamples);
 
 
 
