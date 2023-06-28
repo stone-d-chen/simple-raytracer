@@ -48,27 +48,32 @@ int main(int ArgC, char **Args)
 
     u32 RaysPerPixel = 4;
 
-
+    v3f *ColorArray = (v3f *) malloc(Image.Height * Image.Width * sizeof(v3f));
+    f32 TotalSamples = 0;
     while(is_running == true)
     {
 
         v3f RayOrigin = CameraP;
+        ++TotalSamples;
         u32 *Out = Image.Pixels;
+        v3f *VOut = ColorArray;
         for(u32 Y = 0; Y < Image.Height; ++Y)
         {
             f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
             for(u32 X = 0; X < Image.Width; ++X)
             {
                 f32 FilmX = -1.0 + 2.0 * X / (f32) Image.Width;
-                v3f color = {};
-                for(u32 RayIndex = 0; RayIndex < RaysPerPixel; ++RayIndex)
-                {
+                // v3f color = {}; // M_k = M_{k-1} + (x_k - M_{k-1})/k
+                // for(u32 RayIndex = 0; RayIndex < RaysPerPixel; ++RayIndex)
+                // {
                     f32 OffY = (FilmY + HalfPixH) + HalfPixH * RandomBilateral(World.State);
                     f32 OffX = (FilmX + HalfPixW) + HalfPixW * RandomBilateral(World.State);
                     v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY * OffY * HalfFilmH + CameraX * OffX * HalfFilmW);
-                    color += Raycast(World, Image, RayOrigin, RayDirection);
-                }
-                *Out++ = ARGBPack(color/RaysPerPixel);
+                    v3f color = Raycast(World, Image, RayOrigin, RayDirection);
+
+                    *VOut++ += color;
+                *Out++ = ARGBPack(*VOut++/TotalSamples);
+                // }
             }
         }
 
