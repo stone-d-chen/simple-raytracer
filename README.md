@@ -5,6 +5,7 @@
 2023/28/6
 
 -   bug fixed ARGB back (shifted way too much), add specularity 
+-   rays per pixel, implement floating point safe accumulation?
 
 2023/25/6
 
