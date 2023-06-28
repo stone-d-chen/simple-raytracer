@@ -58,7 +58,7 @@ int main(int ArgC, char **Args)
 
         AddAndReturnPreviousValue(&Queue.TilesRetired, 0);
 
-        u32 CoreCount = 4;
+        u32 CoreCount = 14;
         for(u32 CoreIdx = 1; CoreIdx < CoreCount; ++CoreIdx)
         {
             CreateWorkerThread((void*)&Queue);

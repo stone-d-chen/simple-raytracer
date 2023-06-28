@@ -169,7 +169,6 @@ void RenderTile(world World, image_u32 Image,
 
 
 u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value);
-
 // u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
 // {
 //     u32 Result = *Addend;

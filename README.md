@@ -1,5 +1,46 @@
 # Simple Raytracer
 
+## 
+
+## Updates/Notes
+
+2023/28/6
+
+-   Need to seed a random number for each work_order? right now going through World.State pointer
+
+Okay so here's the current issue, right now my random_state \*State is baked into my world struct and my RenderTile call goes RenderTile(World, Image) ....
+
+Actually maybe less of a problem than I thought, since I pack more work orders with a copy of the `world World` struct, so once the world is packed, then I just update the struct with a new seed
+
+``` cpp
+typedef struct {
+    u32 MaterialCount;
+    material *Materials;
+    //other stuff
+    random_series *State;
+} world;
+
+void RenderTile(world World, image_u32 Image, ...)
+  
+//work order packing pseudo code
+for(u32 TileY = 0; TileY < TileCountY; ++TileY)
+  for(u32 TileX = 0; TileX < TileCountX; ++TileX)
+    work_order *Order = Queue.Orders + Queue.WorkOrderCount++;
+    // ...
+    Order->World = World; // we get a copy to the world
+    Order->Image = Image;
+    // ...
+    
+    //something like
+    Order->World.State = rand();
+```
+
+-   bug fixed ARGB back (shifted way too much), add specularity
+
+-   rays per pixel, implement floating point safe accumulation
+
+-   Everything is too slow, should just multithread
+
 ## Multi-threading notes
 
 <https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread>
@@ -22,14 +63,6 @@ DWORD WINAPI ThreadProc( // pass a pointer to this function
 -   So I want to convert RenderTile into a thread routine
 -   I want the thread routine to continuously compute tiles until there's nothing left
 -   So it should take a work queue with the list of tiles to compute
-
-## Updates/Notes
-
-2023/28/6
-
--   bug fixed ARGB back (shifted way too much), add specularity
--   rays per pixel, implement floating point safe accumulation
--   Everything is too slow, should just multithread
 
 2023/25/6
 
