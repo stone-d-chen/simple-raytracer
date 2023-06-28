@@ -2,13 +2,15 @@
 world World = {};
 material Materials[] =
 {
-    {{0.3, 0.4, 0.5}, {0.0, 0.0, 0.8} },
-    {{0.0, 0.0, 0.0}, {0.8, 0.6, 0.7} },
-    {{0.0, 0.0, 0.0}, {0.0, 0.9, 0.3} },
+    {{1.0, 1.0, 1.0}, {0.0, 0.0, 0.0} , 0 },
+                  //k         //b??
+    {{0, 0, 0}, {0.0, 0.5, 0.0}, 1.0},
+    {{0.0, 0.0, 0.0}, {0.4, 0.9, 0.6} , 0 },
+    {{0.0, 0.0, 0.0}, {0.3, 0.9, 0.3} , 1 },
 };
 plane Planes[] =
 {
-    {{0,0,1}, 0, 1},
+    {{0,0,1}, 0, 1}, 
 };
 sphere Spheres[] =
 {
@@ -21,13 +23,8 @@ World.Materials = Materials;
 World.Spheres = Spheres;
 World.Planes = Planes;
 
-random_series State = {rand()};
+random_series State = {(u32)rand()};
 World.State = &State;
-
-
-
-
-
 
 
 f32 FilmDist = 1.0;

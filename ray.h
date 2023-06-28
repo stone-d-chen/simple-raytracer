@@ -14,6 +14,7 @@ typedef struct
 {
     v3f EmitColor;
     v3f RefColor;
+    f32 Specularity;
 } material;
 
 typedef struct
