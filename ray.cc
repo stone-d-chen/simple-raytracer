@@ -107,7 +107,14 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
     return(Color);
 }
 
-void RenderTile(world World, image_u32 Image)
+u32 *GetPixelPointer(image_u32 Image, u32 Y, u32 X)
+{
+    u32 *Out = Image.Pixels + Image.Width*Y + X;
+    return(Out);
+}
+
+void RenderTile(world World, image_u32 Image,
+                u32 MinX, u32 MinY, u32 OnePastMaxX, u32 OnePastMaxY)
 {
     u32 RaysPerPixel = 1;
 
@@ -139,13 +146,14 @@ void RenderTile(world World, image_u32 Image)
 
     
     v3f RayOrigin = CameraP;
+
     u32 *PixelOut = Image.Pixels;
 
-
-    for(u32 Y = 0; Y < Image.Height; ++Y)
+    for(u32 Y = MinY; Y < OnePastMaxY; ++Y)
     {
+        PixelOut = GetPixelPointer(Image, Y, MinX);
         f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
-        for(u32 X = 0; X < Image.Width; ++X)
+        for(u32 X = MinX; X < OnePastMaxX; ++X)
         {
             f32 FilmX = -1.0 + 2.0 * X / (f32) Image.Width;
 

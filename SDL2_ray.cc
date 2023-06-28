@@ -25,7 +25,8 @@ int main(int ArgC, char **Args)
     while(is_running == true)
     {
 
-        RenderTile(World, Image);
+        // RenderTile(World, Image, 0, 0, Image.Width, Image.Height);
+        RenderTile(World, Image, 350, 350, 700, 700);
 
       
 
