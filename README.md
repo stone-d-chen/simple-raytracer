@@ -2,6 +2,10 @@
 
 ## Updates/Notes
 
+2023/28/6
+
+-   bug fixed ARGB back (shifted way too much), add specularity 
+
 2023/25/6
 
 -   added bounces + random
