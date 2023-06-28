@@ -33,13 +33,11 @@ int main(int ArgC, char **Args)
         for(u32 TileY = 0; TileY < TileCountY; ++TileY)
         {
             u32 TileMinY = TileY * TileHeight;
-            u32 TileOnePastMaxY = TileMinY + TileHeight;
-            if(TileOnePastMaxY > Image.Height) TileOnePastMaxY = Image.Height;
+            u32 TileOnePastMaxY = TileMinY + TileHeight; if(TileOnePastMaxY > Image.Height) TileOnePastMaxY = Image.Height;
             for(u32 TileX = 0; TileX < TileCountX; ++TileX)
             {
                 u32 TileMinX = TileX * TileWidth;
-                u32 TileOnePastMaxX = TileMinX + TileWidth;
-                if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
+                u32 TileOnePastMaxX = TileMinX + TileWidth; if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
                 RenderTile(World, Image, TileMinX, TileMinY, TileOnePastMaxX, TileOnePastMaxY);
             }
         }
