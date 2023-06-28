@@ -24,5 +24,3 @@ World.Planes = Planes;
 
 random_series State = {(u32)rand()};
 World.State = &State;
-
-

@@ -1,6 +1,31 @@
 #include "ray.h"
 #include "math.h"
 
+
+u32 ARGBPack(v3f rgb)
+{
+    u32 r = ((u32) (255 * rgb.r)) << 16 |
+            ((u32) (255 * rgb.g)) << 8 |
+            ((u32) (255 * rgb.b)) << 0  |
+            0xFF000000;
+    return(r);
+}
+
+u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
+{
+    u32 r = (A << 24 | R << 16 | G << 8 | B << 0);
+    return(r);
+}
+
+image_u32 AllocateImage(u32 Width, u32 Height)
+{
+    image_u32 Image = {};
+    Image.Width = Width;
+    Image.Height = Height;
+    Image.Pixels = (u32 *)malloc(Width * Height * sizeof(u32));
+    return(Image);
+}
+
 v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
     f32 Tolerance = 0.0001;
@@ -68,9 +93,9 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
             RayOrigin = NextOrigin;
             Attenuation = Hadamard(Attenuation, Material.RefColor);
             v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
-            v3f RandomBounce = Normalize(NextNormal + Normalize(v3f{RandomBilateral(World.State),
+            v3f RandomBounce = Normalize(NextNormal + v3f{RandomBilateral(World.State),
                                                                     RandomBilateral(World.State),
-                                                                    RandomBilateral(World.State)}));
+                                                                    RandomBilateral(World.State)});
             RayDirection = Normalize(PureBounce * Material.Specularity + RandomBounce * (1 - Material.Specularity));
         }
         else
@@ -82,26 +107,59 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
     return(Color);
 }
 
-u32 ARGBPack(v3f rgb)
+void RenderTile(world World, image_u32 Image)
 {
-    u32 r = ((u32) (255 * rgb.r)) << 16 |
-            ((u32) (255 * rgb.g)) << 8 |
-            ((u32) (255 * rgb.b)) << 0  |
-            0xFF000000;
-    return(r);
-}
+    u32 RaysPerPixel = 1;
 
-u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
-{
-    u32 r = (A << 24 | R << 16 | G << 8 | B << 0);
-    return(r);
-}
+    f32 FilmDist = 1.0;
+    f32 FilmW = 1.0;
+    f32 FilmH = 1.0;
+    if (Image.Width > Image.Height)
+    {
+        FilmH *= (f32)Image.Height / Image.Width;
+    }
+    if (Image.Width < Image.Height)
+    {
+        FilmW *= (f32)Image.Width / Image.Height;
+    }
+    f32 HalfFilmW = 0.5 * FilmW;
+    f32 HalfFilmH = 0.5 * FilmH;
 
-image_u32 AllocateImage(u32 Width, u32 Height)
-{
-    image_u32 Image = {};
-    Image.Width = Width;
-    Image.Height = Height;
-    Image.Pixels = (u32 *)malloc(Width * Height * sizeof(u32));
-    return(Image);
+    f32 PixH = 2.0 / (f32)Image.Height;
+    f32 PixW = 2.0 / (f32)Image.Width;
+    f32 HalfPixH = 0.5 * PixH;
+    f32 HalfPixW = 0.5 * PixW;
+
+
+    v3f CameraP = v3f{ 0, -10, 1 };
+    v3f LookAt = v3f{ 0, 0, 0, };
+    v3f CameraZ = Normalize(CameraP - LookAt);
+    v3f CameraX = Normalize(Cross(v3f{ 0,0,1 }, CameraZ)); //right hand rule
+    v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
+
+    
+    v3f RayOrigin = CameraP;
+    u32 *PixelOut = Image.Pixels;
+
+
+    for(u32 Y = 0; Y < Image.Height; ++Y)
+    {
+        f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
+        for(u32 X = 0; X < Image.Width; ++X)
+        {
+            f32 FilmX = -1.0 + 2.0 * X / (f32) Image.Width;
+
+            v3f color = {};
+            for(u32 RayIndex = 0; RayIndex < RaysPerPixel; ++RayIndex)
+            {
+                f32 OffY = (FilmY + HalfPixH) + HalfPixH * RandomBilateral(World.State);
+                f32 OffX = (FilmX + HalfPixW) + HalfPixW * RandomBilateral(World.State);
+                v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY * OffY * HalfFilmH + CameraX * OffX * HalfFilmW);
+                            
+                color += Raycast(World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
+            }
+            *PixelOut++ = ARGBPack(color/RaysPerPixel);
+
+        }
+    }
 }
