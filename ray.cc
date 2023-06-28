@@ -66,12 +66,12 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         if(HitMatIndex != 0)
         {
             RayOrigin = NextOrigin;
+            Attenuation = Hadamard(Attenuation, Material.RefColor);
             v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
             v3f RandomBounce = Normalize(NextNormal + Normalize(v3f{RandomBilateral(World.State),
                                                                     RandomBilateral(World.State),
                                                                     RandomBilateral(World.State)}));
-            RayDirection = PureBounce * 0.5 + RandomBounce * 0.5;
-            Attenuation = Hadamard(Attenuation, Material.RefColor);
+            RayDirection = Normalize(PureBounce * Material.Specularity + RandomBounce * (1 - Material.Specularity));
         }
         else
         {
@@ -84,9 +84,9 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 
 u32 ARGBPack(v3f rgb)
 {
-    u32 r = (u32) (255 * rgb.r) << 24 |
-            (u32) (255 * rgb.g) << 16 |
-            (u32) (255 * rgb.b) << 0  |
+    u32 r = ((u32) (255 * rgb.r)) << 16 |
+            ((u32) (255 * rgb.g)) << 8 |
+            ((u32) (255 * rgb.b)) << 0  |
             0xFF000000;
     return(r);
 }
