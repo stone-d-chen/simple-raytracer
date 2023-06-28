@@ -1,11 +1,37 @@
 # Simple Raytracer
 
+## Multi-threading notes
+
+<https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createthread>
+
+``` cpp
+HANDLE CreateThread(
+  lpThreadAttributes, // NULL
+  dwStackSize,    // 0
+  lpStartAddress, // ptr to function to be executed by thread
+  lpParameter, // a pointer to the variable to be passed to the thread
+  dwCreationFlags, // 0 immediately run
+  lpThreadId // NULL;
+);
+
+DWORD WINAPI ThreadProc( // pass a pointer to this function
+  LPVOID lpParameter //thread receives pointer to the data
+);
+```
+
+-   So I want to convert RenderTile into a thread routine
+
+-   I want the thread routine to continuously compute tiles until there's nothing left
+
+-   So it should take a work queue with the list of tiles to compute
+
 ## Updates/Notes
 
 2023/28/6
 
--   bug fixed ARGB back (shifted way too much), add specularity 
--   rays per pixel, implement floating point safe accumulation?
+-   bug fixed ARGB back (shifted way too much), add specularity
+-   rays per pixel, implement floating point safe accumulation
+-   Everything is too slow, should just multithread
 
 2023/25/6
 
