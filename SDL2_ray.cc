@@ -25,8 +25,24 @@ int main(int ArgC, char **Args)
     while(is_running == true)
     {
 
-        // RenderTile(World, Image, 0, 0, Image.Width, Image.Height);
-        RenderTile(World, Image, 350, 350, 700, 700);
+        u32 TileWidth = Image.Width / 8;
+        u32 TileHeight = TileWidth;
+        u32 TileCountX = (Image.Width + TileWidth - 1) / TileWidth;
+        u32 TileCountY = (Image.Height + TileHeight - 1) / TileHeight;
+
+        for(u32 TileY = 0; TileY < TileCountY; ++TileY)
+        {
+            u32 TileMinY = TileY * TileHeight;
+            u32 TileOnePastMaxY = TileMinY + TileHeight;
+            if(TileOnePastMaxY > Image.Height) TileOnePastMaxY = Image.Height;
+            for(u32 TileX = 0; TileX < TileCountX; ++TileX)
+            {
+                u32 TileMinX = TileX * TileWidth;
+                u32 TileOnePastMaxX = TileMinX + TileWidth;
+                if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
+                RenderTile(World, Image, TileMinX, TileMinY, TileOnePastMaxX, TileOnePastMaxY);
+            }
+        }
 
       
 
@@ -44,4 +60,4 @@ int main(int ArgC, char **Args)
     }
     return(0);
 
-}
+} 
