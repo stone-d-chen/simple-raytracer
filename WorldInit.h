@@ -1,4 +1,5 @@
 
+#include "ray.h"
 world World = {};
 material Materials[] =
 {
@@ -22,5 +23,11 @@ World.Materials = Materials;
 World.Spheres = Spheres;
 World.Planes = Planes;
 
-random_series State = {(u32)rand()};
-World.State = &State;
+random_series State = CreateRandomSeries();
+World.State = State;
+
+World.Camera.P      = v3f{ 0, -10, 1 };
+World.Camera.LookAt = v3f{ 0, 0, 0, };
+World.Camera.Z      = Normalize(World.Camera.P - World.Camera.LookAt);
+World.Camera.X      = Normalize(Cross(v3f{ 0,0,1 }, World.Camera.Z)); //right hand rule
+World.Camera.Y      = Normalize(Cross(World.Camera.Z, World.Camera.X)); //right hand rule

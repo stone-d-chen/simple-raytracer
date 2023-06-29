@@ -32,6 +32,15 @@ typedef struct
 
 typedef struct
 {
+    v3f P;
+    v3f LookAt;
+    v3f X;
+    v3f Y;
+    v3f Z;
+} camera;
+
+typedef struct
+{
     u32 MaterialCount;
     material *Materials;
 
@@ -41,7 +50,9 @@ typedef struct
     u32 PlaneCount;
     plane *Planes;
 
-    random_series *State;
+    camera Camera;
+
+    random_series State;
 
 } world;
 
@@ -66,6 +77,7 @@ typedef struct
     volatile u32 TilesRetired;
 } work_queue;
 
+// InterlockedExchangeAdd()
 u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value);
 
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "include/SDL.h"
-#include "math.h"
 
+#include "math.h"
 #include "ray.cc"
 
 // my platform is now SDL2/Windows
@@ -52,6 +52,12 @@ int main(int ArgC, char **Args)
     u32 TotalTileCount = TileCountX * TileCountY;
 
     work_queue Queue = {};
+    v3f CameraP = v3f{ 0, -10, 1 };
+    v3f LookAt = v3f{ 0, 0, 0, };
+    v3f CameraZ = Normalize(CameraP - LookAt);
+    v3f CameraX = Normalize(Cross(v3f{ 0,0,1 }, CameraZ)); //right hand rule
+    v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
+    
     Queue.Orders = (work_order *)malloc(TotalTileCount * sizeof(work_order));
     
 
@@ -78,6 +84,7 @@ int main(int ArgC, char **Args)
                 Order->TileMinY = TileMinY;
                 Order->TileOnePastMaxX = TileOnePastMaxX;
                 Order->TileOnePastMaxY = TileOnePastMaxY;
+                Order->World.State = CreateRandomSeries();
             }
         }
 
