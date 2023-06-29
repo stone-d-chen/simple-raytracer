@@ -102,6 +102,17 @@ typedef struct
     u32 counter;
 } random_series;
 
+random_series CreateRandomSeries()
+{
+    random_series Series = {(u32)rand(),
+                            (u32)rand(),
+                            (u32)rand(),
+                            (u32)rand(),
+                            (u32)rand(),
+                            (u32)rand()};
+    return(Series);
+}
+
 u32 XorWow(random_series *state)
 {
     /* https://en.wikipedia.org/wiki/Xorshift#xorwow */
