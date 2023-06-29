@@ -4,6 +4,10 @@
 
 ## Updates/Notes
 
+2023/29/6
+
+-   Start separating out platform layer and raycasting layer
+
 2023/28/6
 
 -   Need to seed a random number for each work_order? right now going through World.State pointer
@@ -32,13 +36,11 @@ for(u32 TileY = 0; TileY < TileCountY; ++TileY)
     // ...
     
     //something like
-    Order->World.State = rand();
+    Order->World.State =  rand();
 ```
 
 -   bug fixed ARGB back (shifted way too much), add specularity
-
 -   rays per pixel, implement floating point safe accumulation
-
 -   Everything is too slow, should just multithread
 
 ## Multi-threading notes
