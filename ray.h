@@ -9,7 +9,6 @@ typedef struct
     u32 *Pixels;
 } image_u32; 
 
-
 typedef struct
 {
     v3f EmitColor;
@@ -66,6 +65,9 @@ typedef struct
     volatile u32 NextWorkOrder;
     volatile u32 TilesRetired;
 } work_queue;
+
+u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value);
+
 
 
 #endif

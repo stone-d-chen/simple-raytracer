@@ -4,6 +4,33 @@
 
 #include "ray.cc"
 
+// my platform is now SDL2/Windows
+#include <windows.h>
+u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
+{
+    u32 Result = InterlockedExchangeAdd(Addend, Value);
+    return(Result);
+}
+DWORD WINAPI WorkerThread(void *Param)
+{
+    work_queue *Queue = (work_queue*) Param;
+    RenderTile(Queue);
+    return(0);
+}
+void CreateWorkerThread(void *Param)
+{
+    HANDLE Handle = CreateThread(NULL, 0, WorkerThread, Param, 0, NULL);
+    CloseHandle(Handle);
+}
+
+image_u32 AllocateImage(u32 Width, u32 Height)
+{
+    image_u32 Image = {};
+    Image.Width = Width;
+    Image.Height = Height;
+    Image.Pixels = (u32 *)malloc(Width * Height * sizeof(u32));
+    return(Image);
+}
 
 int main(int ArgC, char **Args)
 {
@@ -15,7 +42,6 @@ int main(int ArgC, char **Args)
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, Image.Width, Image.Height);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
 
 #include "WorldInit.h" //just to get it out of the way
 

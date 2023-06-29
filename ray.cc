@@ -17,15 +17,6 @@ u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
     return(r);
 }
 
-image_u32 AllocateImage(u32 Width, u32 Height)
-{
-    image_u32 Image = {};
-    Image.Width = Width;
-    Image.Height = Height;
-    Image.Pixels = (u32 *)malloc(Width * Height * sizeof(u32));
-    return(Image);
-}
-
 v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
     f32 Tolerance = 0.0001;
@@ -168,7 +159,6 @@ void RenderTile(world World, image_u32 Image,
 
 
 
-u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value);
 // u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
 // {
 //     u32 Result = *Addend;
@@ -195,31 +185,4 @@ void RenderTile(work_queue *Queue)
 
         AddAndReturnPreviousValue(&Queue->TilesRetired, 1);
     }
-}
-
-
-/*
-    MAYBE NEW FILE HERE?
-
-*/
-
-#include <windows.h>
-u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
-{
-    u32 Result = InterlockedExchangeAdd(Addend, Value);
-    return(Result);
-}
-
-
-DWORD WINAPI WorkerThread(void *Param)
-{
-    work_queue *Queue = (work_queue*) Param;
-    RenderTile(Queue);
-    return(0);
-}
-
-void CreateWorkerThread(void *Param)
-{
-    HANDLE Handle = CreateThread(NULL, 0, WorkerThread, Param, 0, NULL);
-    CloseHandle(Handle);
 }
