@@ -17,7 +17,7 @@ u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
     return(r);
 }
 
-v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
+v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
     f32 Tolerance = 0.0001;
 
@@ -33,9 +33,9 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         f32 HitDistance = F32_MAX;
         u32 HitMatIndex = 0;
 
-        for(u32 SphereIdx = 0; SphereIdx < World.SphereCount; ++SphereIdx)
+        for(u32 SphereIdx = 0; SphereIdx < World->SphereCount; ++SphereIdx)
         {
-            sphere Sphere = World.Spheres[SphereIdx];
+            sphere Sphere = World->Spheres[SphereIdx];
             
             f32 a = Inner(RayDirection, RayDirection);
             v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
@@ -60,9 +60,9 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
             }
         }
         
-        for(u32 PlaneIdx = 0; PlaneIdx < World.PlaneCount; ++PlaneIdx)
+        for(u32 PlaneIdx = 0; PlaneIdx < World->PlaneCount; ++PlaneIdx)
         {
-            plane Plane = World.Planes[PlaneIdx];
+            plane Plane = World->Planes[PlaneIdx];
             f32 Denom = Inner(RayDirection, Plane.N);
             if ((Denom < -Tolerance) || (Denom > Tolerance))
             {
@@ -77,16 +77,16 @@ v3f Raycast(world World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
             }
         }
 
-        material Material = World.Materials[HitMatIndex];
+        material Material = World->Materials[HitMatIndex];
         Color += Hadamard(Attenuation, Material.EmitColor);
         if(HitMatIndex != 0)
         {
             RayOrigin = NextOrigin;
             Attenuation = Hadamard(Attenuation, Material.RefColor);
             v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
-            v3f RandomBounce = Normalize(NextNormal + v3f{RandomBilateral(World.State),
-                                                                    RandomBilateral(World.State),
-                                                                    RandomBilateral(World.State)});
+            v3f RandomBounce = Normalize(NextNormal +           v3f{RandomBilateral(&(World->State)),
+                                                                    RandomBilateral(&(World->State)),
+                                                                    RandomBilateral(&(World->State))});
             RayDirection = Normalize(PureBounce * Material.Specularity + RandomBounce * (1 - Material.Specularity));
         }
         else
@@ -123,11 +123,11 @@ void RenderTile(world World, image_u32 Image,
     f32 HalfPixH = 0.5 * PixH;
     f32 HalfPixW = 0.5 * PixW;
 
-    v3f CameraP = v3f{ 0, -10, 1 };
-    v3f LookAt = v3f{ 0, 0, 0, };
-    v3f CameraZ = Normalize(CameraP - LookAt);
-    v3f CameraX = Normalize(Cross(v3f{ 0,0,1 }, CameraZ)); //right hand rule
-    v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
+    v3f CameraP = World.Camera.P;      
+    v3f LookAt  = World.Camera.LookAt; 
+    v3f CameraZ = World.Camera.Z;      
+    v3f CameraX = World.Camera.X;      
+    v3f CameraY = World.Camera.Y;      
     v3f RayOrigin = CameraP;
 
     u32 *PixelOut = Image.Pixels;
@@ -143,11 +143,11 @@ void RenderTile(world World, image_u32 Image,
             v3f color = {};
             for(u32 RayIndex = 0; RayIndex < RaysPerPixel; ++RayIndex)
             {
-                f32 OffY = (FilmY + HalfPixH) + HalfPixH * RandomBilateral(World.State);
-                f32 OffX = (FilmX + HalfPixW) + HalfPixW * RandomBilateral(World.State);
+                f32 OffY = (FilmY + HalfPixH) + HalfPixH * RandomBilateral(&World.State);
+                f32 OffX = (FilmX + HalfPixW) + HalfPixW * RandomBilateral(&World.State);
                 v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY * OffY * HalfFilmH + CameraX * OffX * HalfFilmW);
                             
-                color += Raycast(World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
+                color += Raycast(&World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
             }
             *PixelOut++ = ARGBPack(color/RaysPerPixel);
 
@@ -157,14 +157,6 @@ void RenderTile(world World, image_u32 Image,
 
 
 
-
-
-// u32 AddAndReturnPreviousValue(volatile u32 *Addend, u32 Value)
-// {
-//     u32 Result = *Addend;
-//     *Addend = *Addend + Value;
-//     return(Result);
-// }
 
 //this will be my threadproc
 void RenderTile(work_queue *Queue)
