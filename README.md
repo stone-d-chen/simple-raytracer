@@ -8,7 +8,7 @@
 
 -   Note on random stuff from 28/6 that doesn't work
 
-So made a mistake, random_series \*Series is a POINTER and it was to a global object, which thinking about it now, is also a problem because we had multiple threads working on the same pointer.... I actually don't know what I was thinking at all yesterday.
+So made a mistake, random_series \*Series is a POINTER and it was to a global object, which thinking about it now, is also a problem because we had multiple threads working on the same data.... I actually don't know what I was thinking at all yesterday.
 
 The original problem to solve was that having world World meant that each Raycast call modified the internal state but then the internal state was lost between calls.
 

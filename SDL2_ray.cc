@@ -108,6 +108,13 @@ int main(int ArgC, char **Args)
         printf("MS Elapsed: %d MS   FPS: %.2f \r", FrameTime, 1000.0 / (f32) FrameTime );
 
 
+        // user_inputs UserInput = {}
+        // FillUserInput(UserInput);
+        // void RaycastUpdate(World, Image, UserInput)
+        // {
+        //     UserInput.
+        // }
+
         SDL_Event event;
         SDL_PollEvent(&event);
         switch(event.type)
@@ -140,6 +147,27 @@ int main(int ArgC, char **Args)
                     case SDLK_LEFT:
                     {
                         World.Camera.P.x -= 0.02;
+                    } break;
+                    case SDLK_w:
+                    {
+                        World.Camera.P.y += 0.06;
+                        World.Camera.LookAt.y += 0.06;
+                    } break;
+                    case SDLK_s:
+                    {
+                        World.Camera.LookAt.y -= 0.06;
+                        World.Camera.P.y -= 0.06;
+                    } break;
+                    case SDLK_d:
+                    {
+                        World.Camera.P.x += 0.02;
+                        World.Camera.LookAt.x += 0.02;
+                        
+                    } break;
+                    case SDLK_a:
+                    {
+                        World.Camera.P.x -= 0.02;
+                        World.Camera.LookAt.x -= 0.02;
                     } break;
                 }
             } break;

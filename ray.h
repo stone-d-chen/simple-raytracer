@@ -7,7 +7,19 @@ typedef struct
     u32 Width;
     u32 Height;
     u32 *Pixels;
-} image_u32; 
+} image_u32;
+
+typedef struct
+{
+    u32 Up;
+    u32 Down;
+    u32 Left;
+    u32 Right;
+    u32 W;
+    u32 A;
+    u32 S;
+    u32 D;
+} user_inputs;
 
 typedef struct
 {
@@ -51,6 +63,8 @@ typedef struct
     plane *Planes;
 
     camera Camera;
+
+    u32 RaysPerPixel;
 
     random_series State;
 

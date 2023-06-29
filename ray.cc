@@ -156,8 +156,6 @@ void RenderTile(world World, image_u32 Image,
 }
 
 
-
-
 //this will be my threadproc
 void RenderTile(work_queue *Queue)
 {
