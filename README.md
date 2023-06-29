@@ -6,7 +6,63 @@
 
 2023/29/6
 
+-   Note on random stuff from 28/6 that doesn't work
+
+So made a mistake, random_series \*Series is a POINTER and it was to a global object, which thinking about it now, is also a problem because we had multiple threads working on the same pointer.... I actually don't know what I was thinking at all yesterday.
+
+The original problem to solve was that having world World meant that each Raycast call modified the internal state but then the internal state was lost between calls.
+
+My original solution was to store a pointer to a state instead.
+
+Now I'm treating World copies as essentially work orders which is probably not good, since it doesn't really make intuitive sense (why is the World different between tiles?) I should probably put it inside the work_order but that's annoying because I would need to allow the render tile function to access the work_order or take a random state.
+
+``` cpp
+typedef struct {
+    random_series *State; 
+} world;
+
+void RenderTile(work_queue *Queue)
+{
+  work_order Order = Queue.Order[Idx];
+  RenderTile(Order=>World)
+}
+
+void RenderTile(world World, image_u32 Image, ...)
+{
+  // Still a pointer
+  Raycast(world World, ....)
+}
+
+```
+
 -   Start separating out platform layer and raycasting layer
+-   How should the RenderTile stuff be abstacted out?
+
+My current RenderTile call takes a Queue and runs work orders off the Queue automatically. The Platform layer can implement this in multi-threaded way. This means that the Raycaster is deciding how to split up the work jobs. Or maybe the platform code should determine stuff like TileWidth and TileHeight? I think this makes sense. From a game perspective the user it passing down settings into the game which then runs. The platform knows how many cores it has etc. So we should have work_queue parameters that get initialized by the platform
+
+``` cpp
+CreateWorkOrders(work_queue Queue, image_u32 Image, u32 TileWidth, u32 TileHeight)
+
+void RenderTile(work_queue *Queue)
+{
+    while(Queue->TilesRetired < Queue->WorkOrderCount)
+    {
+        u32 WorkOrderIndex = AddAndReturnPreviousValue(&Queue->NextWorkOrder, 1);
+        if(WorkOrderIndex >= Queue->WorkOrderCount) return;
+        
+        work_order *Order = Queue->Orders + WorkOrderIndex;
+
+        RenderTile(Order->World,
+                    Order->Image,
+                    Order->TileMinX,
+                    Order->TileMinY,
+                    Order->TileOnePastMaxX,
+                    Order->TileOnePastMaxY);
+
+        AddAndReturnPreviousValue(&Queue->TilesRetired, 1);
+    }
+}
+```
 
 2023/28/6
 
@@ -14,14 +70,14 @@
 
 Okay so here's the current issue, right now my random_state \*State is baked into my world struct and my RenderTile call goes RenderTile(World, Image) ....
 
-Actually maybe less of a problem than I thought, since I pack more work orders with a copy of the `world World` struct, so once the world is packed, then I just update the struct with a new seed
+(NOTE: This doesn't work) Actually maybe less of a problem than I thought, since I pack more work orders with a copy of the `world World` struct, so once the world is packed, then I just update the struct with a new seed
 
 ``` cpp
 typedef struct {
     u32 MaterialCount;
     material *Materials;
     //other stuff
-    random_series *State;
+    random_series *State; //NOTE OOPS
 } world;
 
 void RenderTile(world World, image_u32 Image, ...)
