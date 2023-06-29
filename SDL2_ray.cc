@@ -51,18 +51,13 @@ int main(int ArgC, char **Args)
     u32 TileCountY = (Image.Height + TileHeight - 1) / TileHeight;
     u32 TotalTileCount = TileCountX * TileCountY;
 
-    work_queue Queue = {};
-    v3f CameraP = v3f{ 0, -10, 1 };
-    v3f LookAt = v3f{ 0, 0, 0, };
-    v3f CameraZ = Normalize(CameraP - LookAt);
-    v3f CameraX = Normalize(Cross(v3f{ 0,0,1 }, CameraZ)); //right hand rule
-    v3f CameraY = Normalize(Cross(CameraZ, CameraX)); //right hand rule
-    
+    work_queue Queue = {};    
     Queue.Orders = (work_order *)malloc(TotalTileCount * sizeof(work_order));
-    
 
     while(is_running == true)
     {
+
+        u32 FrameStart = SDL_GetTicks();
 
         Queue.NextWorkOrder = 0;
         Queue.TilesRetired = 0;
@@ -107,6 +102,11 @@ int main(int ArgC, char **Args)
         SDL_RenderPresent(renderer);
         SDL_RenderClear(renderer);
 
+        u32 FrameEnd = SDL_GetTicks();
+        u32 FrameTime = FrameEnd - FrameStart;
+
+        printf("MS Elapsed: %d MS   FPS: %.2f \r", FrameTime, 1000.0 / (f32) FrameTime );
+
 
         SDL_Event event;
         SDL_PollEvent(&event);
@@ -124,6 +124,22 @@ int main(int ArgC, char **Args)
                     case SDLK_ESCAPE:
                     {
                         is_running = false;
+                    } break;
+                    case SDLK_UP:
+                    {
+                        World.Camera.P.z += 0.02;
+                    } break;
+                    case SDLK_DOWN:
+                    {
+                        World.Camera.P.z -= 0.02;
+                    } break;
+                    case SDLK_RIGHT:
+                    {
+                        World.Camera.P.x += 0.02;
+                    } break;
+                    case SDLK_LEFT:
+                    {
+                        World.Camera.P.x -= 0.02;
                     } break;
                 }
             } break;
