@@ -32,7 +32,6 @@ void RenderTile(world World, image_u32 Image, ...)
   // Still a pointer
   Raycast(world World, ....)
 }
-
 ```
 
 -   Start separating out platform layer and raycasting layer

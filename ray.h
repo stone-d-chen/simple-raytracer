@@ -58,6 +58,7 @@ typedef struct
 
     u32 SphereCount;
     sphere *Spheres;
+    bvh_node *SphereBVH;
 
     u32 PlaneCount;
     plane *Planes;
