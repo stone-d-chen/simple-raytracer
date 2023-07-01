@@ -4,6 +4,58 @@
 
 ## Updates/Notes
 
+2023/30/6
+
+-   Bounding Volume Hierachy Construction
+    -   <https://jacco.ompf2.com/2022/04/13/how-to-build-a-bvh-part-1-basics/>
+
+The main loop behind BVH construction is actually the QuickSelect algorithm
+
+-   <https://spin0r.wordpress.com/2021/01/01/how-exactly-to-do-linear-time-quickselect-with-duplicate-elements/>
+-   <https://en.wikipedia.org/wiki/Quickselect>
+
+Two examples of the main QuickSelect loop are below with the logic as following
+
+-   We have an array of elements which we're first looping through from the front. We continue incrementing the front element until we find an element that is \>= the SplitPos/pivot element. We then swap with the back element, so i is now that element and j is pointing to the previous element. We resume the loop for i (previously the back element) and continue iterating. Eventually the pointers will be adjacent. We either increment i to j or we decrement j to i. We then do a final check of the doubly pointed element. If i is \< than the pivot we increment i and the loop breaks. Then `i` points at the first element of the array containing pivots and up. On the other hand i points to something greater than the pivot. We swap (noop) and decrement j. `i` still points at the front of the array with pivots and up.
+
+-   In the second, we again loop until the front idx points at the first element that is \> pivot, we then loop until j points at the first element \<= pivot. We swap so j slot now has the old i element and vice versa. We decrement both so they point at new elements.
+
+    -   i eventually points to pivot or greater, and j points to a pivot or less
+
+    -   The pointers [i,j] are adjacent and we swap and increment i. Then `i` points to a pivot or greater (i points to a pivot or greater, j points to same place.
+
+    -   
+
+``` cpp
+  while (i <= j)
+  {
+      if (array[i] < SplitPos)
+      {
+          i++;
+      }
+      else
+      {
+          SwapSpheres(array[i], array[j--]);
+      }
+  }
+// 
+ 
+ while (frontIdx < backIdx)
+    {
+        while (arr[frontIdx] < pivot) {
+            ++frontIdx;  //if we exit, then frontIdx points at >= pivot
+        }
+        while (arr[backIdx] > pivot) {
+            --backIdx; //exit, points at <= pivot
+        }
+        if (frontIdx < backIdx)
+        {
+            swap(arr + frontIdx++, arr + backIdx);
+            //left half will be pivot or less, right pivot or greater
+        }
+    }
+```
+
 2023/29/6
 
 -   Note on random stuff from 28/6 that doesn't work
