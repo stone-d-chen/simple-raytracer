@@ -56,6 +56,28 @@ v3f operator/(v3f a, f32 b) {
     v3f r = a * (1.0 / b);
     return(r);
 }
+
+v3f operator-(v3f a, f32 b)
+{
+    v3f r = {a.x - b, a.y - b, a.z - b};
+    return(r);
+}
+
+/* 
+    Mathops
+*/
+
+v3f fminf(v3f a, v3f b)
+{
+    v3f r = {fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z)};
+    return(r);
+}
+v3f fmaxf(v3f a, v3f b)
+{
+    v3f r = {fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z)};
+    return(r);
+}
+
 // inplace
 
 v3f operator+=(v3f &a, v3f b)
@@ -93,6 +115,10 @@ v3f Cross(v3f a, v3f b) {
              a.x*b.y - a.y*b.x};
     return(r);
 };
+
+/*
+    Random Series
+*/
 
 #include <random>
 

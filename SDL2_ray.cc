@@ -2,6 +2,7 @@
 #include "include/SDL.h"
 
 #include "math.h"
+#include "bvh.cc"
 #include "ray.cc"
 
 // my platform is now SDL2/Windows
@@ -44,6 +45,14 @@ int main(int ArgC, char **Args)
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 #include "WorldInit.h" //just to get it out of the way
+
+    bvh_node &Root = SphereBVH[RootNodeIdx];
+    Root.PrimCount = ArrayCount(Spheres);
+    Root.FirstPrim = 0;
+    Root.LeftChild = 0;
+    Root.RightChild = 0;
+    UpdateSphereNodeBounds(RootNodeIdx, Spheres);
+    SubdivideNode(RootNodeIdx, Spheres);
 
     u32 TileWidth = Image.Width / 8;
     u32 TileHeight = TileWidth;
