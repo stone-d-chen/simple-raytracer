@@ -60,7 +60,7 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         //     }
         // }
 
-        
+        IntersectBVH(RayDirection, RayOrigin, 0, World->Spheres, HitDistance, HitMatIndex, NextOrigin, NextNormal);
         
         for(u32 PlaneIdx = 0; PlaneIdx < World->PlaneCount; ++PlaneIdx)
         {
