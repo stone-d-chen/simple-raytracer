@@ -16,13 +16,13 @@ void UpdateSphereNodeBounds(u32 NodeIdx, sphere *Spheres)
 {
     bvh_node &Node = SphereBVH[NodeIdx];
     Node.bbMin = v3f{FLT_MAX, FLT_MAX, FLT_MAX};
-    Node.bbMax = v3f{FLT_MIN, FLT_MIN, FLT_MIN};
+    Node.bbMax = v3f{-FLT_MAX, -FLT_MAX, -FLT_MAX};
 
     for(u32 First = Node.FirstPrim, i = 0; i < Node.PrimCount; ++i)
     {
         sphere &Sphere = Spheres[First + i];
         Node.bbMin = fminf(Node.bbMin, Sphere.P - Sphere.r);
-        Node.bbMax = fmaxf(Node.bbMax, Sphere.P - Sphere.r);
+        Node.bbMax = fmaxf(Node.bbMax, Sphere.P + Sphere.r);
     }
 }
 void SubdivideNode(u32 NodeIdx, sphere *Spheres)
@@ -32,7 +32,7 @@ void SubdivideNode(u32 NodeIdx, sphere *Spheres)
 
     v3f Extent = Node.bbMax - Node.bbMin;
     u32 axis = 0;
-    if(Extent.y - Extent.x) axis = 1;
+    if(Extent.y > Extent.x) axis = 1;
     if(Extent.z > Extent.v[axis]) axis = 2;
     f32 SplitPosition = Node.bbMin.v[axis] + Extent.v[axis] * 0.5f;
 
