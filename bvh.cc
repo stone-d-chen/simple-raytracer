@@ -3,7 +3,6 @@
 #include "math.h"
 
 #include "bvh.h"
-#inlcude 
 
 void SwapSpheres(sphere *A, sphere *B)
 {
@@ -60,9 +59,15 @@ void Subdivide(u32 NodeIdx, sphere *Spheres)
     Node.LeftNode = LeftChildIdx;
     Node.RightNode = RightChildIdx;
     SphereBVHNodes[LeftChildIdx].FirstPrim = Node.FirstPrim;
+    SphereBVHNodes[LeftChildIdx].LeftCount = LeftCount;
     SphereBVHNodes[RightChildIdx].FirstPrim = i;
-    SphereBVHNodes[RightChildIdx].PrimCount = Node.PrimtCount - LeftCount;
+    SphereBVHNodes[RightChildIdx].PrimCount = Node.PrimCount - LeftCount;
     Node.PrimCount = 0;
+
+    UpdateNodeBounds(LeftChildIdx);
+    UpdateNodeBounds(RightChildIdx);
+    Subdivide(LeftChildIdx);
+    Subdivide(RightChildIdx);
 
 
 }
