@@ -3,12 +3,13 @@
 #include "math.h"
 
 #include "bvh.h"
+#include "ray.h"
 
 void SwapSpheres(sphere *A, sphere *B)
 {
     sphere Temp = *A;
     *A = *B;
-    *B = *Temp;
+    *B = Temp;
 }
 
 void UpdateSphereNodeBounds(u32 NodeIdx, sphere *Spheres)
@@ -23,9 +24,8 @@ void UpdateSphereNodeBounds(u32 NodeIdx, sphere *Spheres)
         Node.bbMin = fminf(Node.bbMin, Sphere.P - Sphere.r);
         Node.bbMax = fmaxf(Node.bbMax, Sphere.P - Sphere.r);
     }
-
 }
-void Subdivide(u32 NodeIdx, sphere *Spheres)
+void SubdivideNode(u32 NodeIdx, sphere *Spheres)
 {
     bvh_node &Node = SphereBVH[NodeIdx];
     if(Node.PrimCount <= 2) return;
@@ -41,13 +41,13 @@ void Subdivide(u32 NodeIdx, sphere *Spheres)
 
     while (i <= j)
     {
-        if (Spheres[1].P.v[axis] < SplitPos)
+        if (Spheres[i].P.v[axis] < SplitPosition)
         {
             i++;
         }
         else
         {
-            SwapSpheres(Spheres[i], Spheres[j--]);
+            SwapSpheres(&Spheres[i], &Spheres[j--]);
         }
     }
 
@@ -56,18 +56,16 @@ void Subdivide(u32 NodeIdx, sphere *Spheres)
 
     u32 LeftChildIdx = NodesUsed++;
     u32 RightChildIdx = NodesUsed++;
-    Node.LeftNode = LeftChildIdx;
-    Node.RightNode = RightChildIdx;
-    SphereBVHNodes[LeftChildIdx].FirstPrim = Node.FirstPrim;
-    SphereBVHNodes[LeftChildIdx].LeftCount = LeftCount;
-    SphereBVHNodes[RightChildIdx].FirstPrim = i;
-    SphereBVHNodes[RightChildIdx].PrimCount = Node.PrimCount - LeftCount;
+    Node.LeftChild = LeftChildIdx;
+    Node.RightChild = RightChildIdx;
+    SphereBVH[LeftChildIdx].FirstPrim = Node.FirstPrim;
+    SphereBVH[LeftChildIdx].PrimCount = LeftCount;
+    SphereBVH[RightChildIdx].FirstPrim = i;
+    SphereBVH[RightChildIdx].PrimCount = Node.PrimCount - LeftCount;
     Node.PrimCount = 0;
 
-    UpdateNodeBounds(LeftChildIdx);
-    UpdateNodeBounds(RightChildIdx);
-    Subdivide(LeftChildIdx);
-    Subdivide(RightChildIdx);
-
-
+    UpdateSphereNodeBounds(LeftChildIdx , Spheres);
+    UpdateSphereNodeBounds(RightChildIdx, Spheres);
+    SubdivideNode(LeftChildIdx, Spheres);
+    SubdivideNode(RightChildIdx, Spheres);
 }
