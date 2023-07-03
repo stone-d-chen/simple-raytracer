@@ -54,7 +54,7 @@ int main(int ArgC, char **Args)
     UpdateSphereNodeBounds(RootNodeIdx, Spheres);
     SubdivideNode(RootNodeIdx, Spheres);
 
-    u32 TileWidth = Image.Width / 8;
+    u32 TileWidth = Image.Width / 14;
     u32 TileHeight = TileWidth;
     u32 TileCountX = (Image.Width + TileWidth - 1) / TileWidth;
     u32 TileCountY = (Image.Height + TileHeight - 1) / TileHeight;
@@ -117,9 +117,9 @@ int main(int ArgC, char **Args)
         printf("MS Elapsed: %d MS   FPS: %.2f \r", FrameTime, 1000.0 / (f32) FrameTime );
 
 
-        // user_inputs UserInput = {}
+        user_inputs UserInputs = {};
         // FillUserInput(UserInput);
-        // void RaycastUpdate(World, Image, UserInput)
+        // void World(World, Image, UserInput)
         // {
         //     UserInput.
         // }
@@ -143,44 +143,60 @@ int main(int ArgC, char **Args)
                     } break;
                     case SDLK_UP:
                     {
-                        World.Camera.P.z += 0.02;
+                        // World.Camera.P.z += 0.06;
+                        UserInputs.Up = 1;
                     } break;
                     case SDLK_DOWN:
                     {
-                        World.Camera.P.z -= 0.02;
+                        // World.Camera.P.z -= 0.06;
+                        UserInputs.Down = 1;
                     } break;
                     case SDLK_RIGHT:
                     {
-                        World.Camera.P.x += 0.02;
+                        // World.Camera.P.x += 0.06;
+                        UserInputs.Right = 1;
                     } break;
                     case SDLK_LEFT:
                     {
-                        World.Camera.P.x -= 0.02;
+                        // World.Camera.P.x -= 0.06;
+                        UserInputs.Left = 1;
                     } break;
                     case SDLK_w:
                     {
-                        World.Camera.P.y += 0.06;
-                        World.Camera.LookAt.y += 0.06;
+                        // World.Camera.P.y += 0.06;
+                        // World.Camera.LookAt.y += 0.06;
+                        UserInputs.W = 1;
                     } break;
                     case SDLK_s:
                     {
-                        World.Camera.LookAt.y -= 0.06;
-                        World.Camera.P.y -= 0.06;
+                        // World.Camera.LookAt.y -= 0.06;
+                        // World.Camera.P.y -= 0.06;
+                        UserInputs.S = 1;
                     } break;
                     case SDLK_d:
                     {
-                        World.Camera.P.x += 0.02;
-                        World.Camera.LookAt.x += 0.02;
+                        // World.Camera.P.x += 0.06;
+                        // World.Camera.LookAt.x += 0.06;
+                        UserInputs.D = 1;
                         
                     } break;
                     case SDLK_a:
                     {
-                        World.Camera.P.x -= 0.02;
-                        World.Camera.LookAt.x -= 0.02;
+                        // World.Camera.P.x -= 0.06;
+                        // World.Camera.LookAt.x -= 0.06;
+                        UserInputs.A = 1;
+                        
                     } break;
                 }
             } break;
         }
+
+        UpdateWorldState(&World, UserInputs);
+
+
+    
+
+    
     }
     return(0);
 

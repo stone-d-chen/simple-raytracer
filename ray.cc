@@ -17,6 +17,49 @@ u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
     return(r);
 }
 
+void UpdateWorldState(world* World, user_inputs UserInputs)
+{
+    if (UserInputs.Up)
+    {
+        World->Camera.P.z += 0.06;
+
+    }
+    if (UserInputs.Down)
+    {
+        World->Camera.P.z -= 0.06;
+
+    }
+    if (UserInputs.Right)
+    {
+
+        World->Camera.P.x += 0.06;
+    }
+    if (UserInputs.Left)
+    {
+        World->Camera.P.x -= 0.06;
+    }
+    if (UserInputs.W)
+    {
+        World->Camera.P.y += 0.06;
+        World->Camera.LookAt.y += 0.06;
+    }
+    if (UserInputs.S)
+    {
+        World->Camera.P.y -= 0.06;
+        World->Camera.LookAt.y -= 0.06;
+    }
+    if (UserInputs.D)
+    {
+        World->Camera.P.x += 0.06;
+        World->Camera.LookAt.x += 0.06;
+    }
+    if (UserInputs.A)
+    {
+        World->Camera.P.x -= 0.06;
+        World->Camera.LookAt.x -= 0.06;
+    }
+}
+
 v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
     f32 Tolerance = 0.0001;
@@ -109,7 +152,7 @@ u32 *GetPixelPointer(image_u32 Image, u32 Y, u32 X)
 void RenderTile(world World, image_u32 Image,
                 u32 MinX, u32 MinY, u32 OnePastMaxX, u32 OnePastMaxY)
 {
-    u32 RaysPerPixel = 1;
+    u32 RaysPerPixel = World.RaysPerPixel;
 
     f32 FilmDist = 1.0;
     f32 FilmW = 1.0;
