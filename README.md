@@ -4,6 +4,12 @@
 
 ## Updates/Notes
 
+2023/03/7
+
+-   Finished up BVH
+
+-   Abstracted out user inputs
+
 2023/30/6
 
 -   Bounding Volume Hierachy Construction
