@@ -57,9 +57,14 @@ v3f operator/(v3f a, f32 b) {
     return(r);
 }
 
+v3f operator+(v3f a, f32 b)
+{
+    v3f r = {a.x + b, a.y + b, a.z + b};
+    return(r);
+}
 v3f operator-(v3f a, f32 b)
 {
-    v3f r = {a.x - b, a.y - b, a.z - b};
+    v3f r = a + -b;
     return(r);
 }
 
