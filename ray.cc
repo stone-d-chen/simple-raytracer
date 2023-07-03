@@ -33,32 +33,34 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         f32 HitDistance = F32_MAX;
         u32 HitMatIndex = 0;
 
-        for(u32 SphereIdx = 0; SphereIdx < World->SphereCount; ++SphereIdx)
-        {
-            sphere Sphere = World->Spheres[SphereIdx];
+        // for(u32 SphereIdx = 0; SphereIdx < World->SphereCount; ++SphereIdx)
+        // {
+        //     sphere Sphere = World->Spheres[SphereIdx];
             
-            f32 a = Inner(RayDirection, RayDirection);
-            v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
-            f32 b = 2.0 * Inner(RayDirection, OffsetSphereOrigin);
-            f32 c = Inner(OffsetSphereOrigin, OffsetSphereOrigin) - Sphere.r * Sphere.r;
-            f32 RootTerm = sqrtf(b * b - 4.0f * a * c);
-            if (RootTerm > Tolerance)
-            {
-                f32 t =  (-b + RootTerm) / (2.0 * a);
-                f32 tn = (-b - RootTerm) / (2.0 * a);
-                if (tn > Tolerance)
-                {
-                    t = tn;
-                }
-                if (t < HitDistance && t > Tolerance)
-                {
-                    HitDistance = t;
-                    HitMatIndex = Sphere.MatIndex;
-                    NextOrigin = t*RayDirection + RayOrigin;
-                    NextNormal = Normalize(NextOrigin - Sphere.P);
-                }
-            }
-        }
+        //     f32 a = Inner(RayDirection, RayDirection);
+        //     v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
+        //     f32 b = 2.0 * Inner(RayDirection, OffsetSphereOrigin);
+        //     f32 c = Inner(OffsetSphereOrigin, OffsetSphereOrigin) - Sphere.r * Sphere.r;
+        //     f32 RootTerm = sqrtf(b * b - 4.0f * a * c);
+        //     if (RootTerm > Tolerance)
+        //     {
+        //         f32 t =  (-b + RootTerm) / (2.0 * a);
+        //         f32 tn = (-b - RootTerm) / (2.0 * a);
+        //         if (tn > Tolerance)
+        //         {
+        //             t = tn;
+        //         }
+        //         if (t < HitDistance && t > Tolerance)
+        //         {
+        //             HitDistance = t;
+        //             HitMatIndex = Sphere.MatIndex;
+        //             NextOrigin = t*RayDirection + RayOrigin;
+        //             NextNormal = Normalize(NextOrigin - Sphere.P);
+        //         }
+        //     }
+        // }
+
+        
         
         for(u32 PlaneIdx = 0; PlaneIdx < World->PlaneCount; ++PlaneIdx)
         {
