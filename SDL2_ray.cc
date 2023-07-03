@@ -30,6 +30,8 @@ image_u32 AllocateImage(u32 Width, u32 Height)
     Image.Width = Width;
     Image.Height = Height;
     Image.Pixels = (u32 *)malloc(Width * Height * sizeof(u32));
+    Image.V3FColorArray = (v3f *)malloc(sizeof(v3f) * Image.Height * Image.Width);
+    Image.Contributions = 1;
     return(Image);
 }
 
@@ -100,6 +102,7 @@ int main(int ArgC, char **Args)
             CreateWorkerThread((void*)&Queue);
         }
         RenderTile(&Queue);
+        Image.Contributions++;
       
         void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
         s32 Pitch = Image.Width * sizeof(u32);
@@ -118,11 +121,6 @@ int main(int ArgC, char **Args)
 
 
         user_inputs UserInputs = {};
-        // FillUserInput(UserInput);
-        // void World(World, Image, UserInput)
-        // {
-        //     UserInput.
-        // }
 
         SDL_Event event;
         SDL_PollEvent(&event);
@@ -143,55 +141,41 @@ int main(int ArgC, char **Args)
                     } break;
                     case SDLK_UP:
                     {
-                        // World.Camera.P.z += 0.06;
                         UserInputs.Up = 1;
                     } break;
                     case SDLK_DOWN:
                     {
-                        // World.Camera.P.z -= 0.06;
                         UserInputs.Down = 1;
                     } break;
                     case SDLK_RIGHT:
                     {
-                        // World.Camera.P.x += 0.06;
                         UserInputs.Right = 1;
                     } break;
                     case SDLK_LEFT:
                     {
-                        // World.Camera.P.x -= 0.06;
                         UserInputs.Left = 1;
                     } break;
                     case SDLK_w:
                     {
-                        // World.Camera.P.y += 0.06;
-                        // World.Camera.LookAt.y += 0.06;
                         UserInputs.W = 1;
                     } break;
                     case SDLK_s:
                     {
-                        // World.Camera.LookAt.y -= 0.06;
-                        // World.Camera.P.y -= 0.06;
                         UserInputs.S = 1;
                     } break;
                     case SDLK_d:
                     {
-                        // World.Camera.P.x += 0.06;
-                        // World.Camera.LookAt.x += 0.06;
-                        UserInputs.D = 1;
-                        
+                        UserInputs.D = 1;                        
                     } break;
                     case SDLK_a:
                     {
-                        // World.Camera.P.x -= 0.06;
-                        // World.Camera.LookAt.x -= 0.06;
-                        UserInputs.A = 1;
-                        
+                        UserInputs.A = 1;                        
                     } break;
                 }
             } break;
         }
 
-        UpdateWorldState(&World, UserInputs);
+        UpdateWorldState(&World, &Image, UserInputs);
 
 
     

@@ -17,46 +17,64 @@ u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
     return(r);
 }
 
-void UpdateWorldState(world* World, user_inputs UserInputs)
+void ResetImage(image_u32 *Image)
+{
+    Image->Contributions = 1;
+    memset(Image->V3FColorArray, 0, Image->Height * Image->Width * sizeof(v3f));
+}
+
+void UpdateWorldState(world* World, image_u32 *Image, user_inputs UserInputs)
 {
     if (UserInputs.Up)
     {
         World->Camera.P.z += 0.06;
-
+        ResetImage(Image);
     }
     if (UserInputs.Down)
     {
         World->Camera.P.z -= 0.06;
+        ResetImage(Image);
 
     }
     if (UserInputs.Right)
     {
-
         World->Camera.P.x += 0.06;
+        ResetImage(Image);
+
     }
     if (UserInputs.Left)
     {
         World->Camera.P.x -= 0.06;
+        ResetImage(Image);
+
     }
     if (UserInputs.W)
     {
         World->Camera.P.y += 0.06;
         World->Camera.LookAt.y += 0.06;
+        ResetImage(Image);
+
     }
     if (UserInputs.S)
     {
         World->Camera.P.y -= 0.06;
         World->Camera.LookAt.y -= 0.06;
+        ResetImage(Image);
+
     }
     if (UserInputs.D)
     {
         World->Camera.P.x += 0.06;
         World->Camera.LookAt.x += 0.06;
+        ResetImage(Image);
+
     }
     if (UserInputs.A)
     {
         World->Camera.P.x -= 0.06;
         World->Camera.LookAt.x -= 0.06;
+        ResetImage(Image);
+
     }
 }
 
@@ -148,6 +166,11 @@ u32 *GetPixelPointer(image_u32 Image, u32 Y, u32 X)
     u32 *Out = Image.Pixels + Image.Width*Y + X;
     return(Out);
 }
+v3f *GetV3FPointer(image_u32 Image, u32 Y, u32 X)
+{
+    v3f *Out = Image.V3FColorArray + Image.Width*Y + X;
+    return(Out);
+}
 
 void RenderTile(world World, image_u32 Image,
                 u32 MinX, u32 MinY, u32 OnePastMaxX, u32 OnePastMaxY)
@@ -176,25 +199,28 @@ void RenderTile(world World, image_u32 Image,
     v3f RayOrigin = CameraP;
 
     u32 *PixelOut = Image.Pixels;
+    v3f *ColorOut = Image.V3FColorArray;
 
     for(u32 Y = MinY; Y < OnePastMaxY; ++Y)
     {
         PixelOut = GetPixelPointer(Image, Y, MinX);
+        v3f *ColorOut = GetV3FPointer(Image, Y, MinX);
         f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
         for(u32 X = MinX; X < OnePastMaxX; ++X)
         {
             f32 FilmX = -1.0 + 2.0 * X / (f32) Image.Width;
 
-            v3f color = {};
             for(u32 RayIndex = 0; RayIndex < RaysPerPixel; ++RayIndex)
             {
                 f32 OffY = (FilmY + HalfPixH) + HalfPixH * RandomBilateral(&World.State);
                 f32 OffX = (FilmX + HalfPixW) + HalfPixW * RandomBilateral(&World.State);
                 v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY * OffY * HalfFilmH + CameraX * OffX * HalfFilmW);
                             
-                color += Raycast(&World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
+                *ColorOut += Raycast(&World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
             }
-            *PixelOut++ = ARGBPack(color/RaysPerPixel);
+            v3f color = *ColorOut++;
+
+            *PixelOut++ = ARGBPack(color/Image.Contributions);
 
         }
     }

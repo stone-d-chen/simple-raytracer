@@ -8,6 +8,9 @@ typedef struct
     u32 Width;
     u32 Height;
     u32 *Pixels;
+
+    u32 Contributions;
+    v3f *V3FColorArray;
 } image_u32;
 
 typedef struct
@@ -69,6 +72,7 @@ typedef struct
     u32 RaysPerPixel;
 
     random_series State;
+
 
 } world;
 

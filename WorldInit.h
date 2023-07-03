@@ -37,4 +37,5 @@ World.Camera.Y      = Normalize(Cross(World.Camera.Z, World.Camera.X)); //right 
 
 World.RaysPerPixel = 1;
 
+
 // user_inputs Inputs = {};
