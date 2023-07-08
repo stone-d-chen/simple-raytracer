@@ -70,56 +70,6 @@ int main(int ArgC, char **Args)
 
         u32 FrameStart = SDL_GetTicks();
 
-        Queue.NextWorkOrder = 0;
-        Queue.TilesRetired = 0;
-        Queue.WorkOrderCount = 0;
-       
-        for(u32 TileY = 0; TileY < TileCountY; ++TileY)
-        {
-            u32 TileMinY = TileY * TileHeight;
-            u32 TileOnePastMaxY = TileMinY + TileHeight; if(TileOnePastMaxY > Image.Height) TileOnePastMaxY = Image.Height;
-            for(u32 TileX = 0; TileX < TileCountX; ++TileX)
-            {
-                u32 TileMinX = TileX * TileWidth;
-                u32 TileOnePastMaxX = TileMinX + TileWidth; if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
-
-                work_order *Order = Queue.Orders + Queue.WorkOrderCount++;
-                Order->World = World;
-                Order->Image = Image;
-                Order->TileMinX = TileMinX;
-                Order->TileMinY = TileMinY;
-                Order->TileOnePastMaxX = TileOnePastMaxX;
-                Order->TileOnePastMaxY = TileOnePastMaxY;
-                Order->World.State = CreateRandomSeries();
-            }
-        }
-
-        AddAndReturnPreviousValue(&Queue.TilesRetired, 0);
-
-        u32 CoreCount = 14;
-        for(u32 CoreIdx = 1; CoreIdx < CoreCount; ++CoreIdx)
-        {
-            CreateWorkerThread((void*)&Queue);
-        }
-        RenderTile(&Queue);
-        Image.Contributions++;
-      
-        void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
-        s32 Pitch = Image.Width * sizeof(u32);
-        SDL_LockTexture(texture, NULL, &TextureMemory, &Pitch);
-        memcpy(TextureMemory, (void*)Image.Pixels, Image.Width*Image.Height*sizeof(u32));
-        SDL_UnlockTexture(texture);
-
-        SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
-        SDL_RenderPresent(renderer);
-        SDL_RenderClear(renderer);
-
-        u32 FrameEnd = SDL_GetTicks();
-        u32 FrameTime = FrameEnd - FrameStart;
-
-        printf("MS Elapsed: %d MS   FPS: %.2f \r", FrameTime, 1000.0 / (f32) FrameTime );
-
-
         user_inputs UserInputs = {};
 
         SDL_Event event;
@@ -176,6 +126,59 @@ int main(int ArgC, char **Args)
         }
 
         UpdateWorldState(&World, &Image, UserInputs);
+
+        Queue.NextWorkOrder = 0;
+        Queue.TilesRetired = 0;
+        Queue.WorkOrderCount = 0;
+       
+        for(u32 TileY = 0; TileY < TileCountY; ++TileY)
+        {
+            u32 TileMinY = TileY * TileHeight;
+            u32 TileOnePastMaxY = TileMinY + TileHeight; if(TileOnePastMaxY > Image.Height) TileOnePastMaxY = Image.Height;
+            for(u32 TileX = 0; TileX < TileCountX; ++TileX)
+            {
+                u32 TileMinX = TileX * TileWidth;
+                u32 TileOnePastMaxX = TileMinX + TileWidth; if(TileOnePastMaxX > Image.Width) TileOnePastMaxX = Image.Width;
+
+                work_order *Order = Queue.Orders + Queue.WorkOrderCount++;
+                Order->World = World;
+                Order->Image = Image;
+                Order->TileMinX = TileMinX;
+                Order->TileMinY = TileMinY;
+                Order->TileOnePastMaxX = TileOnePastMaxX;
+                Order->TileOnePastMaxY = TileOnePastMaxY;
+                Order->World.State = CreateRandomSeries();
+            }
+        }
+
+        AddAndReturnPreviousValue(&Queue.TilesRetired, 0);
+
+        u32 CoreCount = 8;
+        for(u32 CoreIdx = 1; CoreIdx < CoreCount; ++CoreIdx)
+        {
+            CreateWorkerThread((void*)&Queue);
+        }
+        RenderTile(&Queue);
+        Image.Contributions++;
+      
+        void *TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
+        s32 Pitch = Image.Width * sizeof(u32);
+                                // lock portion of texture
+        SDL_LockTexture(texture, NULL, &TextureMemory, &Pitch);
+        memcpy(TextureMemory, (void*)Image.Pixels, Image.Width*Image.Height*sizeof(u32));
+        SDL_UnlockTexture(texture);
+                                        // blit portion of texture
+        SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
+        SDL_RenderPresent(renderer);
+        SDL_RenderClear(renderer);
+
+        u32 FrameEnd = SDL_GetTicks();
+        u32 FrameTime = FrameEnd - FrameStart;
+
+        printf("MS Elapsed: %d MS   FPS: %.2f \r", FrameTime, 1000.0 / (f32) FrameTime );
+
+
+   
 
 
     

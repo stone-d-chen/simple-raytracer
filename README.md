@@ -1,8 +1,24 @@
 # Simple Raytracer
 
-## 
+![](images/paste-59DEC7C1.png)
+
+## Current features 
+
+-   Spheres, planes, different reflectivity, emissive, dielectric values
+-   Can sort of fly the camera around
+-   Features a simple bounding volume hierarchy for an acceleration structure
+
+## Todos
+
+-   I would like to add a gui for on the fly editing of materials...not sure how to do that, maybe dearimgui
 
 ## Updates/Notes
+
+2023/04/7
+
+-   Some camera control
+
+-   Fonts so I can output metrics to screen?
 
 2023/03/7
 

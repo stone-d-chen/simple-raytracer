@@ -4,9 +4,9 @@
 
 u32 ARGBPack(v3f rgb)
 {
-    u32 r = ((u32) (255 * rgb.r)) << 16 |
-            ((u32) (255 * rgb.g)) << 8 |
-            ((u32) (255 * rgb.b)) << 0  |
+    u32 r = ((u32) (255 * sqrt(rgb.r))) << 16 |
+            ((u32) (255 * sqrt(rgb.g))) << 8 |
+            ((u32) (255 * sqrt(rgb.b))) << 0  |
             0xFF000000;
     return(r);
 }
@@ -78,6 +78,15 @@ void UpdateWorldState(world* World, image_u32 *Image, user_inputs UserInputs)
     }
 }
 
+f32 GetReflectance(f32 CosTheta, f32 EtaOverEtaP)
+{
+    f32 Result = (1 - EtaOverEtaP) / (1 + EtaOverEtaP);
+    Result *= Result;
+    Result = Result + (1 - Result)*pow((1-CosTheta), 5);
+    return(Result);
+}
+
+
 v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
     f32 Tolerance = 0.0001;
@@ -93,33 +102,6 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
     {
         f32 HitDistance = F32_MAX;
         u32 HitMatIndex = 0;
-
-        // for(u32 SphereIdx = 0; SphereIdx < World->SphereCount; ++SphereIdx)
-        // {
-        //     sphere Sphere = World->Spheres[SphereIdx];
-            
-        //     f32 a = Inner(RayDirection, RayDirection);
-        //     v3f OffsetSphereOrigin = RayOrigin - Sphere.P;
-        //     f32 b = 2.0 * Inner(RayDirection, OffsetSphereOrigin);
-        //     f32 c = Inner(OffsetSphereOrigin, OffsetSphereOrigin) - Sphere.r * Sphere.r;
-        //     f32 RootTerm = sqrtf(b * b - 4.0f * a * c);
-        //     if (RootTerm > Tolerance)
-        //     {
-        //         f32 t =  (-b + RootTerm) / (2.0 * a);
-        //         f32 tn = (-b - RootTerm) / (2.0 * a);
-        //         if (tn > Tolerance)
-        //         {
-        //             t = tn;
-        //         }
-        //         if (t < HitDistance && t > Tolerance)
-        //         {
-        //             HitDistance = t;
-        //             HitMatIndex = Sphere.MatIndex;
-        //             NextOrigin = t*RayDirection + RayOrigin;
-        //             NextNormal = Normalize(NextOrigin - Sphere.P);
-        //         }
-        //     }
-        // }
 
         IntersectBVH(RayDirection, RayOrigin, 0, World->Spheres, HitDistance, HitMatIndex, NextOrigin, NextNormal);
         
@@ -146,11 +128,42 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         {
             RayOrigin = NextOrigin;
             Attenuation = Hadamard(Attenuation, Material.RefColor);
-            v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
-            v3f RandomBounce = Normalize(NextNormal +           v3f{RandomBilateral(&(World->State)),
-                                                                    RandomBilateral(&(World->State)),
-                                                                    RandomBilateral(&(World->State))});
-            RayDirection = Normalize(PureBounce * Material.Specularity + RandomBounce * (1 - Material.Specularity));
+
+            if(Material.Eta > 0)
+            {
+                f32 Eta = Material.Eta;
+                f32 EtaOverEtaP = 1.0/Eta;
+                if(Inner(RayDirection, NextNormal) > 0)
+                {
+                    NextNormal = -1.0*NextNormal;
+                    EtaOverEtaP = Eta;
+                }
+
+                f32 CosTheta = Inner(-RayDirection, NextNormal);
+                f32 SinTheta = sqrt(1.0 - CosTheta*CosTheta);
+
+                if( (SinTheta * EtaOverEtaP > 1.0) || GetReflectance(CosTheta, EtaOverEtaP) > RandomUnilateral(&(World->State)))
+                {
+                    RayDirection = RayDirection - 2.0 * Inner(RayDirection, NextNormal) * NextNormal;
+                }
+                else
+                {
+                    v3f RefracPerp = EtaOverEtaP * (RayDirection + CosTheta*NextNormal);
+                    v3f RefracPara = -sqrtf(fabs(1.0 - Inner(RefracPerp, RefracPerp))) * NextNormal;
+                    RayDirection = Normalize(RefracPerp + RefracPara);
+                }
+            }
+            else
+            {
+                v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
+                v3f RandomBounce = Normalize(NextNormal +           v3f{RandomBilateral(&(World->State)),
+                                                                        RandomBilateral(&(World->State)),
+                                                                        RandomBilateral(&(World->State))});
+                RayDirection = Normalize(PureBounce * Material.Specularity + RandomBounce * (1 - Material.Specularity));
+
+            }
+
+            
         }
         else
         {
@@ -158,7 +171,7 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
         }
 
     }
-    return(Color);
+    return(Clamp01(Color));
 }
 
 u32 *GetPixelPointer(image_u32 Image, u32 Y, u32 X)

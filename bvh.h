@@ -12,5 +12,5 @@ typedef struct
     u32 PrimCount;
 } bvh_node;
 
-bvh_node SphereBVH[10*2 - 1];
+bvh_node SphereBVH[20*2 - 1];
 u32 RootNodeIdx = 0, NodesUsed = 1;

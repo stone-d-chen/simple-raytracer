@@ -30,6 +30,7 @@ typedef struct
     v3f EmitColor;
     v3f RefColor;
     f32 Specularity;
+    f32 Eta;
 } material;
 
 typedef struct

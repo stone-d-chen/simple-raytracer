@@ -72,6 +72,17 @@ v3f operator-(v3f a, f32 b)
     Mathops
 */
 
+f32 clamp_min(f32 val, f32 min) {
+    if(val < min) val = (f32) min;
+    return(val);
+}
+
+f32 clamp_max(f32 val, f32 max) {
+    if(val > max) val = (f32) max;
+    return(val);
+}
+
+
 v3f fminf(v3f a, v3f b)
 {
     v3f r = {fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z)};
@@ -80,6 +91,15 @@ v3f fminf(v3f a, v3f b)
 v3f fmaxf(v3f a, v3f b)
 {
     v3f r = {fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z)};
+    return(r);
+}
+
+v3f Clamp01(v3f a)
+{
+    v3f r;
+    r.x = clamp_min(clamp_max(a.x, 1), 0);
+    r.y = clamp_min(clamp_max(a.y, 1), 0);
+    r.z = clamp_min(clamp_max(a.z, 1), 0);
     return(r);
 }
 
