@@ -1,5 +1,7 @@
 # Simple Raytracer
 
+Slowly implementing a software-based raytracer, which will hopefully be than mildly interactive at some point.
+
 ![](images/paste-59DEC7C1.png)
 
 ## Current features 
