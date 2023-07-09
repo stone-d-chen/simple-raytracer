@@ -2,12 +2,12 @@
 
 Slowly implementing a software-based raytracer, which will hopefully be than mildly interactive at some point.
 
-![](images/paste-59DEC7C1.png)
+![](images/paste-2B2299C3.png)
 
-## Current features 
+## Current features
 
--   Spheres, planes, different reflectivity, emissive, dielectric values
--   Can sort of fly the camera around
+-   Spheres, planes, reflective, emissive, dielectric values
+-   Can sort of fly the camera around, depth-of-field
 -   Features a simple bounding volume hierarchy for an acceleration structure
 
 ## Todos
