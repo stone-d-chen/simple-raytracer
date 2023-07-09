@@ -209,10 +209,12 @@ void RenderTile(world World, image_u32 Image,
     v3f CameraZ = World.Camera.Z;      
     v3f CameraX = World.Camera.X;      
     v3f CameraY = World.Camera.Y;      
-    v3f RayOrigin = CameraP;
 
     u32 *PixelOut = Image.Pixels;
     v3f *ColorOut = Image.V3FColorArray;
+
+    static f32 FocusDist = 1.2;
+    // FocusDist += 0.01;
 
     for(u32 Y = MinY; Y < OnePastMaxY; ++Y)
     {
@@ -227,7 +229,13 @@ void RenderTile(world World, image_u32 Image,
             {
                 f32 OffY = (FilmY + HalfPixH) + HalfPixH * RandomBilateral(&World.State);
                 f32 OffX = (FilmX + HalfPixW) + HalfPixW * RandomBilateral(&World.State);
-                v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY * OffY * HalfFilmH + CameraX * OffX * HalfFilmW);
+                
+                v3f RayDirection = Normalize(-CameraZ * FilmDist + CameraY*OffY*HalfFilmH +  CameraX*OffX*HalfFilmW);
+                f32 RadiusFactor = 1/150.0;
+                // v3f RayOrigin = CameraP;
+                v3f RayOrigin = CameraP + v3f{RandomBilateral(&World.State) * RadiusFactor,
+                                              RandomBilateral(&World.State) * RadiusFactor,
+                                             RandomBilateral(&World.State) * RadiusFactor};
                             
                 *ColorOut += Raycast(&World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
             }
