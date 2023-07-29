@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "include/imgui/imgui.h"
-#include "include/imgui/imgui_impl_sdl2.h"
-#include "include/imgui/imgui_impl_sdlrenderer2.h"
-
-
 #include "include/SDL.h"
+#include "include/imgui.h"
+#include "include/imgui_impl_sdl2.h"
+#include "include/imgui_impl_sdlrenderer2.h"
+
+
 
 #include "math.h"
 #include "bvh.cc"
