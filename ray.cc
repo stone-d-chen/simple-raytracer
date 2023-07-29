@@ -213,6 +213,8 @@ void RenderTile(world World, image_u32 Image,
     u32 *PixelOut = Image.Pixels;
     v3f *ColorOut = Image.V3FColorArray;
 
+
+
     static f32 FocusDist = 1.2;
     // FocusDist += 0.01;
 
@@ -221,6 +223,7 @@ void RenderTile(world World, image_u32 Image,
         PixelOut = GetPixelPointer(Image, Y, MinX);
         v3f *ColorOut = GetV3FPointer(Image, Y, MinX);
         f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
+        
         for(u32 X = MinX; X < OnePastMaxX; ++X)
         {
             f32 FilmX = -1.0 + 2.0 * X / (f32) Image.Width;
