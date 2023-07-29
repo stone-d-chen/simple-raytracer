@@ -9,12 +9,15 @@ Slowly implementing a software-based raytracer, which will hopefully be than mil
 -   Spheres, planes, reflective, emissive, dielectric values
 -   Can sort of fly the camera around, depth-of-field
 -   Features a simple bounding volume hierarchy for an acceleration structure
-
-## Todos
-
--   I would like to add a gui for on the fly editing of materials...not sure how to do that, maybe dearimgui
+-   WIP: Slowly adding a UI for live material editing
 
 ## Updates/Notes
+
+2023/29/7
+
+Dear IMGUI integration
+
+-   ![](images/paste-9F20F6C1.png)
 
 2023/04/7
 
