@@ -20,7 +20,7 @@ Slowly implementing a software-based raytracer, which will hopefully be than mil
 ```{=html}
 <!-- -->
 ```
--   ![](images/ray3.gif){width="535"}
+-   ![](images/paste-7B8613C4.png)
 
 2023/29/7
 
