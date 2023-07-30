@@ -7,6 +7,8 @@ typedef struct
 {
     u32 Width;
     u32 Height;
+    u32 BufferWidth;
+    u32 BufferHeight;
     u32 *Pixels;
 
     u32 Contributions;

@@ -176,12 +176,12 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 
 u32 *GetPixelPointer(image_u32 Image, u32 Y, u32 X)
 {
-    u32 *Out = Image.Pixels + Image.Width*Y + X;
+    u32 *Out = Image.Pixels       + Image.BufferWidth*Y + X;
     return(Out);
 }
 v3f *GetV3FPointer(image_u32 Image, u32 Y, u32 X)
 {
-    v3f *Out = Image.V3FColorArray + Image.Width*Y + X;
+    v3f *Out = Image.V3FColorArray + Image.BufferWidth*Y + X;
     return(Out);
 }
 

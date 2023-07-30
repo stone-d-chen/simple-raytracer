@@ -35,6 +35,8 @@ image_u32 AllocateImage(u32 Width, u32 Height)
     image_u32 Image = {};
     Image.Width = Width;
     Image.Height = Height;
+    Image.BufferWidth = Width;
+    Image.BufferHeight = Height;
     Image.Pixels = (u32*)malloc(Width * Height * sizeof(u32));
     Image.V3FColorArray = (v3f*)malloc(sizeof(v3f) * Image.Height * Image.Width);
     Image.Contributions = 1;
@@ -49,7 +51,7 @@ int main(int ArgC, char** Args)
     image_u32 Image = AllocateImage(1280, 720);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window* window = SDL_CreateWindow("Raytracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Image.Width, Image.Height, window_flags);
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1,  SDL_RENDERER_ACCELERATED);
     SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, Image.Width, Image.Height);
     void* TextureMemory = malloc(Image.Width * Image.Height * sizeof(u32));
 
@@ -68,8 +70,12 @@ int main(int ArgC, char** Args)
 
 
     // Our state
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    // bool show_demo_window = true;
+    // bool show_another_window = false;
+    bool change_factor = false;
+    bool reset_contributions = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 
 
 #include "WorldInit.h" //just to get it out of the way
@@ -82,11 +88,10 @@ int main(int ArgC, char** Args)
     UpdateSphereNodeBounds(RootNodeIdx, Spheres);
     SubdivideNode(RootNodeIdx, Spheres);
 
-    u32 Factor = 4;
-    Image.Height=720/Factor;
-    Image.Width = 1280/Factor;
 
-    u32 TileWidth = Image.Width / 14;
+    u32 CoreCount = 13;
+
+    u32 TileWidth = Image.Width / CoreCount;
     u32 TileHeight = TileWidth;
     u32 TileCountX = (Image.Width + TileWidth - 1) / TileWidth;
     u32 TileCountY = (Image.Height + TileHeight - 1) / TileHeight;
@@ -155,7 +160,7 @@ int main(int ArgC, char** Args)
         // } break;
         // }
 
-        UpdateWorldState(&World, &Image, UserInputs);
+        // UpdateWorldState(&World, &Image, UserInputs);
 
         Queue.NextWorkOrder = 0;
         Queue.TilesRetired = 0;
@@ -183,7 +188,6 @@ int main(int ArgC, char** Args)
 
         AddAndReturnPreviousValue(&Queue.TilesRetired, 0);
 
-        u32 CoreCount = 9;
         for (u32 CoreIdx = 1; CoreIdx < CoreCount; ++CoreIdx)
         {
             CreateWorkerThread((void*)&Queue);
@@ -205,20 +209,37 @@ int main(int ArgC, char** Args)
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
             SDL_RenderPresent(renderer);
 
+
         }
-        // RenderTile(&Queue);
         Image.Contributions++;
+
+        
 
 
         // blit portion of texture
         s32 Pitch = Image.Width * sizeof(s32);
+        printf("Pitch: %d\n", Pitch);
+
         SDL_Rect rect = {};
         rect.h = Image.Height;
         rect.w = Image.Width;
-        // SDL_LockTexture(texture, &rect, &TextureMemory, &Pitch);// lock portion of texture
-        // memcpy(TextureMemory, (void*)Image.Pixels, Image.Width * Image.Height * sizeof(u32));
-        // SDL_UnlockTexture(texture);
-        SDL_UpdateTexture(texture, &rect, Image.Pixels, Pitch);
+        u32 *DataRowPointer = Image.Pixels;
+        u32 *TextureRowPointer = (u32 *) TextureMemory;
+
+        SDL_LockTexture(texture, &rect, &TextureMemory, &Pitch);// lock portion of texture
+        for(u32 Row = 0; Row < Image.Height; ++Row)
+        {
+            u32 *DataPixelPointer = DataRowPointer;
+            u32 *TexturePixelPointer = TextureRowPointer;
+            for(u32 Col = 0; Col < Image.Width; ++Col)
+            {
+                *TexturePixelPointer++ = *DataPixelPointer++;
+            }
+            TextureRowPointer += Image.BufferWidth; 
+            DataRowPointer    += Image.BufferWidth;
+        }
+        SDL_UnlockTexture(texture);
+        // SDL_UpdateTexture(texture, &rect, Image.Pixels, Pitch);
         SDL_RenderCopyEx(renderer, texture, &rect, NULL, 0, NULL, SDL_FLIP_VERTICAL);
 
 
@@ -226,7 +247,6 @@ int main(int ArgC, char** Args)
 
         ImGui::Render();
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        // SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
 
         SDL_RenderPresent(renderer);
@@ -235,8 +255,35 @@ int main(int ArgC, char** Args)
 
         u32 FrameEnd = SDL_GetTicks();
         u32 FrameTime = FrameEnd - FrameStart;
-
+        
         printf("MS Elapsed: %d MS   FPS: %.2f \r", FrameTime, 1000.0 / (f32) FrameTime );
+
+        if(reset_contributions)
+        {
+            if(!change_factor)
+            {
+                memset(Image.V3FColorArray, 0, 1280*720*sizeof(v3f));
+                memset(Image.Pixels, 0, 1280*720*sizeof(u32));
+                Image.Contributions = 1;
+                Image.Height = 720;
+                Image.Width = 1280;
+                Pitch = Image.Width * sizeof(s32);
+            }
+            else
+            {
+                memset(Image.V3FColorArray, 0, 1280*720*sizeof(v3f));
+                memset(Image.Pixels, 0, 1280*720*sizeof(u32));
+                Image.Contributions = 1;
+                Image.Height = 720/2.5;
+                Image.Width = 1280/2.5;
+                Pitch = Image.Width * sizeof(s32);
+                printf("Pitch: %d\n", Pitch);
+                
+            }
+
+            reset_contributions = false;
+
+        }
 
 
 
