@@ -13,11 +13,20 @@ Slowly implementing a software-based raytracer, which will hopefully be than mil
 
 ## Updates/Notes
 
+2023/30/7
+
+-   IMGUI integration with live material editing, lowering resolution for more interactivity
+
+```{=html}
+<!-- -->
+```
+-   ![](images/ray3.gif){width="535"}
+
 2023/29/7
 
 Dear IMGUI integration
 
--   ![](images/paste-9F20F6C1.png)
+-   ![](images/paste-9F20F6C1.png){width="364"}
 
 2023/04/7
 
