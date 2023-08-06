@@ -5,13 +5,10 @@
 #include "include/imgui_impl_sdlrenderer2.h"
 #include "include/SDL.h"
 
-
-
 #include "math.h"
 #include "bvh.cc"
 #include "ray.cc"
 
-// my platform is now SDL2/Windows
 #include <windows.h>
 u32 AddAndReturnPreviousValue(volatile u32* Addend, u32 Value)
 {
@@ -30,6 +27,8 @@ void CreateWorkerThread(void* Param)
     CloseHandle(Handle);
 }
 
+
+
 image_u32 AllocateImage(u32 Width, u32 Height)
 {
     image_u32 Image = {};
@@ -46,7 +45,7 @@ image_u32 AllocateImage(u32 Width, u32 Height)
 int main(int ArgC, char** Args)
 {
     bool is_running = false;
-    if (SDL_Init(SDL_INIT_EVERYTHING) == 0) { is_running = true; printf("Render\n"); }
+    if (SDL_Init(SDL_INIT_EVERYTHING) == 0) { is_running = true; }
 
     image_u32 Image = AllocateImage(1280, 720);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
@@ -82,7 +81,6 @@ int main(int ArgC, char** Args)
     UpdateSphereNodeBounds(RootNodeIdx, Spheres);
     SubdivideNode(RootNodeIdx, Spheres);
 
-
     u32 CoreCount = 13;
 
     u32 TileWidth = Image.Width / CoreCount;
@@ -92,7 +90,7 @@ int main(int ArgC, char** Args)
     u32 TotalTileCount = TileCountX * TileCountY;
 
     work_queue Queue = {};
-    Queue.Orders = (work_order*)malloc(TotalTileCount * sizeof(work_order));
+    Queue.Orders = (work_order*) malloc(TotalTileCount * sizeof(work_order));
 
     while (is_running == true)
     {
@@ -192,25 +190,21 @@ int main(int ArgC, char** Args)
 
           #include "imgui_loop.h"
           // Rendering
-        ImGui::Render();
-        SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        SDL_Rect rect = {};
-        rect.h = Image.Height;
-        rect.w = Image.Width;
-        SDL_RenderCopyEx(renderer, texture, &rect, NULL, 0, NULL, SDL_FLIP_VERTICAL);
-
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-        SDL_RenderPresent(renderer);
+          ImGui::Render();
+          SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+          SDL_Rect rect = {};
+          rect.h = Image.Height;
+          rect.w = Image.Width;
+          SDL_RenderCopyEx(renderer, texture, &rect, NULL, 0, NULL, SDL_FLIP_VERTICAL);
+  
+          ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+          SDL_RenderPresent(renderer);
         }
 
         Image.Contributions++;
 
-        
-
-
         // blit portion of texture
         s32 Pitch = Image.Width * sizeof(s32);
-        printf("Pitch: %d\n", Pitch);
 
         SDL_Rect rect = {};
         rect.h = Image.Height;
@@ -231,19 +225,14 @@ int main(int ArgC, char** Args)
             DataRowPointer    += Image.BufferWidth;
         }
         SDL_UnlockTexture(texture);
-        // SDL_UpdateTexture(texture, &rect, Image.Pixels, Pitch);
         SDL_RenderCopyEx(renderer, texture, &rect, NULL, 0, NULL, SDL_FLIP_VERTICAL);
-
 
         #include "imgui_loop.h" 
 
         ImGui::Render();
         SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-
         SDL_RenderPresent(renderer);
-
-
 
         u32 FrameEnd = SDL_GetTicks();
         u32 FrameTime = FrameEnd - FrameStart;
@@ -254,6 +243,8 @@ int main(int ArgC, char** Args)
         {
             if(!change_factor)
             {
+                // ResetImage()
+
                 memset(Image.V3FColorArray, 0, 1280*720*sizeof(v3f));
                 memset(Image.Pixels, 0, 1280*720*sizeof(u32));
                 Image.Contributions = 1;
@@ -263,24 +254,17 @@ int main(int ArgC, char** Args)
             }
             else
             {
+                // ResetImage()
+
                 memset(Image.V3FColorArray, 0, 1280*720*sizeof(v3f));
                 memset(Image.Pixels, 0, 1280*720*sizeof(u32));
                 Image.Contributions = 1;
                 Image.Height = 720/2.5;
                 Image.Width = 1280/2.5;
                 Pitch = Image.Width * sizeof(s32);
-                printf("Pitch: %d\n", Pitch);
-                
             }
-
             reset_contributions = false;
-
         }
-
-
-
-
     }
     return(0);
-
 }

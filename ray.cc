@@ -1,22 +1,6 @@
 #include "ray.h"
 #include "math.h"
 
-
-u32 ARGBPack(v3f rgb)
-{
-    u32 r = ((u32) (255 * sqrt(rgb.r))) << 16 |
-            ((u32) (255 * sqrt(rgb.g))) << 8 |
-            ((u32) (255 * sqrt(rgb.b))) << 0  |
-            0xFF000000;
-    return(r);
-}
-
-u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
-{
-    u32 r = (A << 24 | R << 16 | G << 8 | B << 0);
-    return(r);
-}
-
 void ResetImage(image_u32 *Image)
 {
     Image->Contributions = 1;
@@ -34,19 +18,16 @@ void UpdateWorldState(world* World, image_u32 *Image, user_inputs UserInputs)
     {
         World->Camera.P.z -= 0.06;
         ResetImage(Image);
-
     }
     if (UserInputs.Right)
     {
         World->Camera.P.x += 0.06;
         ResetImage(Image);
-
     }
     if (UserInputs.Left)
     {
         World->Camera.P.x -= 0.06;
         ResetImage(Image);
-
     }
     if (UserInputs.W)
     {
@@ -60,22 +41,34 @@ void UpdateWorldState(world* World, image_u32 *Image, user_inputs UserInputs)
         World->Camera.P.y -= 0.06;
         World->Camera.LookAt.y -= 0.06;
         ResetImage(Image);
-
     }
     if (UserInputs.D)
     {
         World->Camera.P.x += 0.06;
         World->Camera.LookAt.x += 0.06;
         ResetImage(Image);
-
     }
     if (UserInputs.A)
     {
         World->Camera.P.x -= 0.06;
         World->Camera.LookAt.x -= 0.06;
         ResetImage(Image);
-
     }
+}
+
+u32 ARGBPack(v3f rgb)
+{
+    u32 r = ((u32) (255 * sqrt(rgb.r))) << 16 |
+            ((u32) (255 * sqrt(rgb.g))) << 8  |
+            ((u32) (255 * sqrt(rgb.b))) << 0  |
+            0xFF000000;
+    return(r);
+}
+
+u32 ARGBPack(u32 A, u32 R, u32 G, u32 B)
+{
+    u32 r = (A << 24 | R << 16 | G << 8 | B << 0);
+    return(r);
 }
 
 f32 GetReflectance(f32 CosTheta, f32 EtaOverEtaP)
@@ -85,7 +78,6 @@ f32 GetReflectance(f32 CosTheta, f32 EtaOverEtaP)
     Result = Result + (1 - Result)*pow((1-CosTheta), 5);
     return(Result);
 }
-
 
 v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
 {
@@ -98,13 +90,18 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
     v3f NextNormal = {};
 
     u32 MaxBounces = 8;
+
+
     for(u32 BounceCount = 0; BounceCount < MaxBounces; ++BounceCount)
     {
         f32 HitDistance = F32_MAX;
         u32 HitMatIndex = 0;
 
+        // Sphere intersection
         IntersectBVH(RayDirection, RayOrigin, 0, World->Spheres, HitDistance, HitMatIndex, NextOrigin, NextNormal);
         
+
+        // Plane intersection
         for(u32 PlaneIdx = 0; PlaneIdx < World->PlaneCount; ++PlaneIdx)
         {
             plane Plane = World->Planes[PlaneIdx];
@@ -129,7 +126,7 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
             RayOrigin = NextOrigin;
             Attenuation = Hadamard(Attenuation, Material.RefColor);
 
-            if(Material.Eta > 0)
+            if(Material.Eta > 0) // refraction
             {
                 f32 Eta = Material.Eta;
                 f32 EtaOverEtaP = 1.0/Eta;
@@ -156,27 +153,23 @@ v3f Raycast(world *World, image_u32 Image, v3f RayOrigin, v3f RayDirection)
             else
             {
                 v3f PureBounce = Normalize(RayDirection - 2.0 * NextNormal * Inner(RayDirection, NextNormal));
-                v3f RandomBounce = Normalize(NextNormal +           v3f{RandomBilateral(&(World->State)),
+                v3f RandomBounce = Normalize(NextNormal +          v3f{ RandomBilateral(&(World->State)),
                                                                         RandomBilateral(&(World->State)),
-                                                                        RandomBilateral(&(World->State))});
+                                                                        RandomBilateral(&(World->State)) });
                 RayDirection = Normalize(PureBounce * Material.Specularity + RandomBounce * (1 - Material.Specularity));
-
             }
-
-            
         }
         else
         {
             break;
         }
-
     }
     return(Clamp01(Color));
 }
 
 u32 *GetPixelPointer(image_u32 Image, u32 Y, u32 X)
 {
-    u32 *Out = Image.Pixels       + Image.BufferWidth*Y + X;
+    u32 *Out = Image.Pixels + Image.BufferWidth*Y + X;
     return(Out);
 }
 v3f *GetV3FPointer(image_u32 Image, u32 Y, u32 X)
@@ -213,14 +206,11 @@ void RenderTile(world World, image_u32 Image,
     u32 *PixelOut = Image.Pixels;
     v3f *ColorOut = Image.V3FColorArray;
 
-
-
-    static f32 FocusDist = 1.2;
-    // FocusDist += 0.01;
+    f32 FocusDist = 1.2;
 
     for(u32 Y = MinY; Y < OnePastMaxY; ++Y)
     {
-        PixelOut = GetPixelPointer(Image, Y, MinX);
+        PixelOut      = GetPixelPointer(Image, Y, MinX);
         v3f *ColorOut = GetV3FPointer(Image, Y, MinX);
         f32 FilmY = -1.0 + 2.0 * Y / (f32) Image.Height;
         
@@ -243,15 +233,12 @@ void RenderTile(world World, image_u32 Image,
                 *ColorOut += Raycast(&World, Image, RayOrigin, RayDirection);   // M_k = M_{k-1} + (x_k - M_{k-1})/k
             }
             v3f color = *ColorOut++;
-
             *PixelOut++ = ARGBPack(color/Image.Contributions);
-
         }
     }
 }
 
-
-//this will be my threadproc
+//this will be my threadproc, see WorkerThread()
 void RenderTile(work_queue *Queue)
 {
     while(Queue->TilesRetired < Queue->WorkOrderCount)

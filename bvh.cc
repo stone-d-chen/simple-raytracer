@@ -1,7 +1,5 @@
 
-
 #include "math.h"
-
 #include "bvh.h"
 #include "ray.h"
 
