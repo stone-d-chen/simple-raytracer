@@ -68,15 +68,9 @@ int main(int ArgC, char** Args)
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
 
-
-    // Our state
-    // bool show_demo_window = true;
-    // bool show_another_window = false;
     bool change_factor = false;
     bool reset_contributions = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-
 
 #include "WorldInit.h" //just to get it out of the way
 
@@ -198,19 +192,17 @@ int main(int ArgC, char** Args)
 
           #include "imgui_loop.h"
           // Rendering
-            ImGui::Render();
-            SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-            // SDL_SetRenderDrawColor(renderer, (Uint8)(clear_color.x * 255), (Uint8)(clear_color.y * 255), (Uint8)(clear_color.z * 255), (Uint8)(clear_color.w * 255));
-            SDL_Rect rect = {};
-            rect.h = Image.Height;
-            rect.w = Image.Width;
-            SDL_RenderCopyEx(renderer, texture, &rect, NULL, 0, NULL, SDL_FLIP_VERTICAL);
+        ImGui::Render();
+        SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+        SDL_Rect rect = {};
+        rect.h = Image.Height;
+        rect.w = Image.Width;
+        SDL_RenderCopyEx(renderer, texture, &rect, NULL, 0, NULL, SDL_FLIP_VERTICAL);
 
-            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-            SDL_RenderPresent(renderer);
-
-
+        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+        SDL_RenderPresent(renderer);
         }
+
         Image.Contributions++;
 
         
